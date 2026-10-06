@@ -1,0 +1,15 @@
+import { Mail, MapPin, MessageCircle, Phone, Clock3 } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { Container, SectionHeading } from "@/components/shared/layout";
+import { GlassCard, GlassButton } from "@/components/shared/glass";
+
+export default async function KontakPage() {
+  const supabase = await createClient();
+  const { data } = await supabase.from("profil_kelurahan").select("alamat, telepon, whatsapp, email, jam_pelayanan, zona_waktu, lat, lng").maybeSingle();
+  const mapUrl = data?.lat && data?.lng ? `https://www.google.com/maps?q=${data.lat},${data.lng}&output=embed` : "";
+  return <main className="pb-24 pt-28"><Container><SectionHeading eyebrow="Hubungi kami" title="Kontak kelurahan" description="Kami siap membantu informasi dan kebutuhan pelayanan warga." /><div className="mt-8 grid gap-5 md:grid-cols-3"><ContactCard icon={<Phone size={20} />} label="Telepon" value={data?.telepon ?? "-"} href={data?.telepon ? `tel:${data.telepon}` : undefined} /><ContactCard icon={<MessageCircle size={20} />} label="WhatsApp" value={data?.whatsapp ?? "-"} href={data?.whatsapp ? `https://wa.me/${data.whatsapp.replace(/\D/g, "")}` : undefined} /><ContactCard icon={<Mail size={20} />} label="Email" value={data?.email ?? "-"} href={data?.email ? `mailto:${data.email}` : undefined} /></div><div className="mt-8 grid gap-5 lg:grid-cols-2"><GlassCard variant="strong" className="p-6"><h2 className="text-xl font-extrabold">Jam pelayanan</h2><div className="mt-5 space-y-3">{Object.entries((data?.jam_pelayanan ?? {}) as Record<string, { buka?: string; tutup?: string }>).map(([day, hours]) => <div key={day} className="flex justify-between border-b border-white/30 pb-3 text-sm"><span className="capitalize font-semibold">{day}</span><span className="text-muted">{hours.buka ?? "-"} - {hours.tutup ?? "-"}</span></div>)}</div></GlassCard><GlassCard variant="strong" className="overflow-hidden p-2">{mapUrl ? <iframe title="Peta lokasi Kelurahan Taratara Tiga" src={mapUrl} className="h-[320px] w-full rounded-3xl border-0" loading="lazy" /> : <div className="flex h-[320px] items-center justify-center text-muted"><MapPin /> Lokasi belum tersedia</div>}</GlassCard></div><p className="mt-5 flex items-center gap-2 text-sm text-muted"><MapPin size={16} />{data?.alamat ?? "Alamat belum tersedia"} <Clock3 size={16} className="ml-3" />Zona waktu {data?.zona_waktu ?? "Asia/Makassar"}</p></Container></main>;
+}
+
+function ContactCard({ icon, label, value, href }: { icon: React.ReactNode; label: string; value: string; href?: string }) {
+  return <GlassCard className="p-5"><span className="glass-pill flex h-11 w-11 items-center justify-center text-[var(--primary)]">{icon}</span><p className="text-muted mt-5 text-xs font-bold uppercase tracking-wider">{label}</p><p className="mt-2 font-extrabold">{value}</p>{href && <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer"><GlassButton variant="secondary" className="mt-4">Hubungi</GlassButton></a>}</GlassCard>;
+}

@@ -1,0 +1,8 @@
+"use server";
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { createClient } from "@/lib/supabase/server";
+import { requireStaff } from "@/lib/supabase/admin";
+const schema = z.object({ id: z.string().uuid().optional(), judul: z.string().trim().min(2), kategori: z.string().trim().min(2), file_url: z.string().url(), file_size: z.coerce.number().int().nonnegative().optional(), tanggal: z.string() });
+export async function saveDokumen(formData: FormData) { const parsed = schema.safeParse({ id: formData.get("id") || undefined, judul: formData.get("judul"), kategori: formData.get("kategori"), file_url: formData.get("file_url"), file_size: formData.get("file_size") || undefined, tanggal: formData.get("tanggal") }); if (!parsed.success) return { error: "Lengkapi judul, kategori, tanggal, dan file." }; await requireStaff(); const supabase = await createClient(); const payload = { judul: parsed.data.judul, kategori: parsed.data.kategori, file_url: parsed.data.file_url, file_size: parsed.data.file_size ?? null, tanggal: parsed.data.tanggal }; const query = parsed.data.id ? supabase.from("dokumen").update(payload).eq("id", parsed.data.id) : supabase.from("dokumen").insert(payload); const { error } = await query; if (error) return { error: error.message }; revalidatePath("/admin/dokumen"); revalidatePath("/dokumen"); return { success: "Dokumen tersimpan." }; }
+export async function deleteDokumen(id: string) { await requireStaff(); const { error } = await (await createClient()).from("dokumen").delete().eq("id", id); if (error) return { error: error.message }; revalidatePath("/admin/dokumen"); revalidatePath("/dokumen"); return { success: "Dokumen dihapus." }; }

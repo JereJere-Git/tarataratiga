@@ -1,0 +1,13 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Command, Search, X } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+
+type Result = { type: "Berita" | "Layanan"; title: string; href: string };
+export function CommandPalette() {
+  const [open, setOpen] = useState(false); const [query, setQuery] = useState(""); const [results, setResults] = useState<Result[]>([]);
+  useEffect(() => { const listener = (event: KeyboardEvent) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") { event.preventDefault(); setOpen(true); } if (event.key === "Escape") setOpen(false); }; window.addEventListener("keydown", listener); return () => window.removeEventListener("keydown", listener); }, []);
+  useEffect(() => { if (!open) return; const timer = window.setTimeout(async () => { const term = query.trim(); if (!term) { setResults([]); return; } const supabase = createClient(); const [{ data: news }, { data: services }] = await Promise.all([supabase.from("berita").select("judul, slug").eq("status", "terbit").ilike("judul", `%${term}%`).limit(5), supabase.from("layanan").select("nama, slug").eq("aktif", true).ilike("nama", `%${term}%`).limit(5)]); setResults([...(news ?? []).map((item) => ({ type: "Berita" as const, title: item.judul, href: `/berita/${item.slug}` })), ...(services ?? []).map((item) => ({ type: "Layanan" as const, title: item.nama, href: `/layanan/${item.slug}` }))]); }, 180); return () => window.clearTimeout(timer); }, [open, query]);
+  return <><button onClick={() => setOpen(true)} className="focus-ring glass-pill flex h-10 w-10 items-center justify-center" aria-label="Pencarian global"><Search size={17} /></button>{open && <div className="fixed inset-0 z-[90] bg-slate-950/35 p-4 pt-[12vh]" onClick={() => setOpen(false)}><div className="glass-strong mx-auto max-w-2xl rounded-[28px] p-4" onClick={(event) => event.stopPropagation()}><div className="flex items-center gap-3"><Command size={18} className="text-muted" /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} className="min-h-12 flex-1 bg-transparent text-lg outline-none" placeholder="Cari berita atau layanan..." /><button onClick={() => setOpen(false)} aria-label="Tutup pencarian"><X /></button></div><div className="mt-3 space-y-1">{results.map((result) => <a href={result.href} key={result.href} onClick={() => setOpen(false)} className="flex min-h-12 items-center justify-between rounded-2xl px-3 font-bold hover:bg-white/50"><span>{result.title}</span><span className="text-xs text-muted">{result.type}</span></a>)}{query && !results.length && <p className="p-4 text-sm text-muted">Tidak ada hasil.</p>}</div></div></div>}</>;
+}
