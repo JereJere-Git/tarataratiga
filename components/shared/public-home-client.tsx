@@ -115,12 +115,12 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
                 <p className="font-semibold text-sm">{data.profile?.jumlah_rw ?? 0} lingkungan</p>
               </div>
               <div className="border-b border-[var(--line)] pb-4 sm:border-0 sm:pb-0">
-                <p className="text-xs text-muted font-medium mb-1">Potensi</p>
-                <p className="font-semibold text-sm">UMKM & Pertanian</p>
+                <p className="text-xs text-muted font-medium mb-1">Luas Kelurahan</p>
+                <p className="font-semibold text-sm">-</p>
               </div>
               <div className="border-b border-[var(--line)] pb-4 sm:border-0 sm:pb-0">
                 <p className="text-xs text-muted font-medium mb-1">Kode pos</p>
-                <p className="font-semibold text-sm">95424</p>
+                <p className="font-semibold text-sm">95423</p>
               </div>
             </div>
           </div>
