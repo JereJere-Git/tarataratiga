@@ -1,4 +1,5 @@
 import { Container, SectionHeading } from "@/components/shared/layout";
+export const revalidate = 60;
 import { createClient } from "@/lib/supabase/server";
 import { GalleryClient } from "./gallery-client";
 

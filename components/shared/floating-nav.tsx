@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { Home, Menu, X, MessageCircle, Newspaper, CalendarDays, MapPinned, ChevronDown, Images, FileText, Store, LayoutGrid, Map as MapIcon, TrendingUp } from "lucide-react";
+import { Home, Menu, X, MessageCircle, Newspaper, CalendarDays, MapPinned, ChevronDown, Images, FileText, Store, LayoutGrid, Map as MapIcon, TrendingUp, BarChart2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -12,6 +12,7 @@ const links = [["Profil", "/#profil"], ["Layanan", "/#layanan"], ["Peta", "/peta
 const informationLinks = [
   { label: "Agenda", description: "Jadwal kegiatan warga", href: "/agenda", icon: CalendarDays },
   { label: "Galeri", description: "Dokumentasi kegiatan", href: "/galeri", icon: Images },
+  { label: "Statistik", description: "Data monografi & ekonomi", href: "/statistik", icon: BarChart2 },
   { label: "Dokumen", description: "Unduhan dan formulir", href: "/dokumen", icon: FileText },
   { label: "Lokasi Penting", description: "Daftar tempat penting", href: "/lokasi", icon: MapPinned },
   { label: "UMKM", description: "Informasi usaha warga", href: "/#keunggulan", icon: Store },

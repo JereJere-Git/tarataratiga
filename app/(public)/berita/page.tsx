@@ -1,3 +1,4 @@
+export const revalidate = 60;
 import { createClient } from "@/lib/supabase/server";
 import { Container, SectionHeading } from "@/components/shared/layout";
 import { EmptyState } from "@/components/shared/empty-state";
