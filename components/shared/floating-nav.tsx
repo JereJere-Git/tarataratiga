@@ -12,9 +12,7 @@ const links = [["Profil", "/#profil"], ["Layanan", "/#layanan"], ["Peta", "/peta
 const informationLinks = [
   { label: "Agenda", description: "Jadwal kegiatan warga", href: "/agenda", icon: CalendarDays },
   { label: "Galeri", description: "Dokumentasi kegiatan", href: "/galeri", icon: Images },
-  { label: "Statistik", description: "Data monografi & ekonomi", href: "/statistik", icon: BarChart2 },
-  { label: "Dokumen", description: "Unduhan dan formulir", href: "/dokumen", icon: FileText },
-  { label: "Lokasi Penting", description: "Daftar tempat penting", href: "/lokasi", icon: MapPinned },
+  { label: "Fasilitas", description: "Daftar fasilitas desa", href: "/#fasilitas", icon: MapPinned },
   { label: "UMKM", description: "Informasi usaha warga", href: "/#keunggulan", icon: Store },
 ] as const;
 
