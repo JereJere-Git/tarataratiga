@@ -13,7 +13,7 @@ import { SectionHeading } from "@/components/shared/layout";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 export type MonografiRow = { id: string; kategori: string; label: string; nilai: number; urutan: number };
-export type EkonomiRow   = { id: string; sektor: string; jumlah: number; urutan: number };
+export type EkonomiRow = { id: string; sektor: string; jumlah: number; urutan: number };
 
 type Props = { monografi: MonografiRow[]; ekonomi: EkonomiRow[] };
 
@@ -27,10 +27,10 @@ const PALETTE = [
 // ─── Kategori config ──────────────────────────────────────────────────────────
 const KATEGORI = [
   { key: "kependudukan", label: "Kependudukan", icon: Users },
-  { key: "pendidikan",   label: "Pendidikan",   icon: GraduationCap },
-  { key: "pekerjaan",    label: "Pekerjaan",    icon: Briefcase },
-  { key: "usia",         label: "Usia",         icon: Baby },
-  { key: "agama",        label: "Agama",        icon: Church },
+  { key: "pendidikan", label: "Pendidikan", icon: GraduationCap },
+  { key: "pekerjaan", label: "Pekerjaan", icon: Briefcase },
+  { key: "usia", label: "Usia", icon: Baby },
+  { key: "agama", label: "Agama", icon: Church },
 ] as const;
 
 type KategoriKey = typeof KATEGORI[number]["key"];
@@ -72,10 +72,13 @@ function StatCard({ label, value, icon }: { label: string; value: number; icon: 
 }
 
 // ─── Kependudukan ─────────────────────────────────────────────────────────────
+// ─── Kependudukan ─────────────────────────────────────────────────────────────
 function KependudukanSection({ rows }: { rows: MonografiRow[] }) {
   const total = rows.reduce((sum, r) => sum + r.nilai, 0);
   const pieData = rows.map((r, i) => ({ name: r.label, value: r.nilai, fill: PALETTE[i % PALETTE.length] }));
+
   if (!rows.length) return <EmptyState title="Belum ada data kependudukan" description="Data akan muncul setelah diisi oleh pengelola kelurahan." />;
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -84,18 +87,42 @@ function KependudukanSection({ rows }: { rows: MonografiRow[] }) {
           <StatCard key={r.id} label={r.label} value={r.nilai} icon={<Users size={20} />} />
         ))}
       </div>
+
       {pieData.length > 1 && (
         <GlassCard className="p-5">
           <p className="mb-4 font-extrabold">Komposisi penduduk</p>
-          <ResponsiveContainer width="100%" height={280}>
-            <PieChart>
-              <Pie data={pieData} cx="50%" cy="50%" outerRadius={100} dataKey="value" nameKey="name" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
-                {pieData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
-              </Pie>
-              <Tooltip formatter={(v: number) => [v.toLocaleString("id-ID") + " jiwa", ""]} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
+          <div style={{ width: "100%", height: 280 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  dataKey="value"
+                  nameKey="name"
+                  // Perbaikan 1: Gunakan validasi fallback opsional (?.) dan default nilai jika undefined
+                  label={({ name, percent }) => {
+                    const pct = percent !== undefined ? (percent * 100).toFixed(0) : "0";
+                    return `${name} ${pct}%`;
+                  }}
+                  labelLine={false}
+                >
+                  {pieData.map((entry, i) => (
+                    <Cell key={`cell-${i}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+                {/* Perbaikan 2: Ubah tipe data parameter formatter menjadi 'any' atau 'unknown' untuk mengakomodasi struktur Recharts terbaru */}
+                <Tooltip
+                  formatter={(v: any) => [
+                    v !== undefined && v !== null ? `${Number(v).toLocaleString("id-ID")} jiwa` : "0 jiwa",
+                    ""
+                  ]}
+                />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </GlassCard>
       )}
     </div>
