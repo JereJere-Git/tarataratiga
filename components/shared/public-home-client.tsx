@@ -13,7 +13,7 @@ import { FasilitasSection } from "@/components/shared/fasilitas-section";
 
 type Profile = {
   sambutan: string | null; alamat: string | null; telepon: string | null; whatsapp: string | null; email: string | null;
-  jam_pelayanan: Record<string, { buka?: string; tutup?: string }>; zona_waktu: string | number | null;; lingkungan: number; jumlah_penduduk: number;
+  jam_pelayanan: Record<string, { buka?: string; tutup?: string }>; zona_waktu: string | number | null; lingkungan: number; jumlah_penduduk: number;
 };
 export type PublicHomeData = { profile: Profile | null; layanan: { id: string; nama: string; slug: string; ringkasan: string | null; urutan: number }[]; berita: { id: string; judul: string; slug: string; ringkasan: string | null; gambar_url: string | null; kategori: string | null; terbit_pada: string | null }[]; agenda: { id: string; judul: string; mulai: string; lokasi: string | null }[] };
 
