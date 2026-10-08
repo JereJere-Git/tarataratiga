@@ -13,20 +13,65 @@ import { FasilitasSection } from "@/components/shared/fasilitas-section";
 
 type Profile = {
   sambutan: string | null; alamat: string | null; telepon: string | null; whatsapp: string | null; email: string | null;
-  jam_pelayanan: Record<string, { buka?: string; tutup?: string }>; zona_waktu: number; lingkungan: number; jumlah_penduduk: number;
+  jam_pelayanan: Record<string, { buka?: string; tutup?: string }>; zona_waktu: string | number | null;; lingkungan: number; jumlah_penduduk: number;
 };
 export type PublicHomeData = { profile: Profile | null; layanan: { id: string; nama: string; slug: string; ringkasan: string | null; urutan: number }[]; berita: { id: string; judul: string; slug: string; ringkasan: string | null; gambar_url: string | null; kategori: string | null; terbit_pada: string | null }[]; agenda: { id: string; judul: string; mulai: string; lokasi: string | null }[] };
 
 function officeStatus(profile: Profile | null) {
-  if (!profile) return { open: false, label: "Informasi jam pelayanan belum tersedia" };
+  if (!profile) {
+    return {
+      open: false,
+      label: "Informasi jam pelayanan belum tersedia",
+    };
+  }
+
   const now = new Date();
-  const englishDay = new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: profile.zona_waktu }).format(now).toLowerCase();
-  const day = ({ sunday: "minggu", monday: "senin", tuesday: "selasa", wednesday: "rabu", thursday: "kamis", friday: "jumat", saturday: "sabtu" } as Record<string, string>)[englishDay] ?? "senin";
+
+  // Pastikan timezone selalu berupa string
+  const timeZone = String(profile.zona_waktu || "Asia/Makassar");
+
+  const englishDay = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    timeZone: timeZone,
+  })
+    .format(now)
+    .toLowerCase();
+
+  const day =
+    ({
+      sunday: "minggu",
+      monday: "senin",
+      tuesday: "selasa",
+      wednesday: "rabu",
+      thursday: "kamis",
+      friday: "jumat",
+      saturday: "sabtu",
+    } as Record<string, string>)[englishDay] ?? "senin";
+
   const schedule = profile.jam_pelayanan?.[day];
-  if (!schedule?.buka || !schedule?.tutup) return { open: false, label: "Tutup hari ini" };
-  const time = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: profile.zona_waktu }).format(now);
+
+  if (!schedule?.buka || !schedule?.tutup) {
+    return {
+      open: false,
+      label: "Tutup hari ini",
+    };
+  }
+
+  const time = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: timeZone,
+  }).format(now);
+
   const open = time >= schedule.buka && time < schedule.tutup;
-  return { open, label: open ? `Buka hingga ${schedule.tutup}` : `Buka ${schedule.buka} besok` };
+
+  return {
+    open,
+    label: open
+      ? `Buka hingga ${schedule.tutup}`
+      : `Buka ${schedule.buka} besok`,
+  };
 }
 
 export function PublicHomeClient({ data }: { data: PublicHomeData }) {
