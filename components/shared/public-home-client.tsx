@@ -116,10 +116,10 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
               </div>
               <div className="border-b border-[var(--line)] pb-4 sm:border-0 sm:pb-0">
                 <p className="text-xs text-muted font-medium mb-1">Luas Kelurahan</p>
-                <p className="font-semibold text-sm">-</p>
+                <p className="font-semibold text-sm">744.80 Ha</p>
               </div>
               <div className="border-b border-[var(--line)] pb-4 sm:border-0 sm:pb-0">
-                <p className="text-xs text-muted font-medium mb-1">Kode pos</p>
+                <p className="text-xs text-muted fon  t-medium mb-1">Kode pos</p>
                 <p className="font-semibold text-sm">95423</p>
               </div>
             </div>
