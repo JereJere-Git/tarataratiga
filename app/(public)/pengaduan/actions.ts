@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { z } from "zod";
-import { createServiceClient } from "@/lib/supabase/service";
+import { createClient } from "@/lib/supabase/server";
 import { complaintSchema } from "@/lib/validations/pengaduan";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -33,7 +33,6 @@ export type ComplaintActionResult =
   | { success: false; error: string };
 
 export async function submitComplaint(formData: FormData): Promise<ComplaintActionResult> {
-  console.log("[pengaduan] FormData keys:", Array.from(formData.keys()));
   const raw = {
     nama: String(formData.get("nama") ?? ""),
     kontak: String(formData.get("kontak") ?? ""),
@@ -61,7 +60,7 @@ export async function submitComplaint(formData: FormData): Promise<ComplaintActi
     return { success: false, error: "Verifikasi keamanan gagal. Silakan coba lagi." };
   }
 
-  const supabase = createServiceClient();
+  const supabase = await createClient();
   const { data: allowed, error: rateError } = await supabase.rpc("consume_pengaduan_rate_limit", {
     client_ip: ip,
     max_requests: 5,
@@ -103,7 +102,7 @@ if (!parsed.success) {
   return { success: false as const, error: "Masukkan nomor tiket terlebih dahulu." };
 }
   const value = parsed.data;
-  const supabase = createServiceClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.rpc("cek_status_pengaduan", { nomor_tiket: value });
   if (error) return { success: false as const, error: "Status pengaduan tidak dapat dimuat." };
   return { success: true as const, data: data?.[0] ?? null };

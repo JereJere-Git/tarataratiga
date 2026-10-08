@@ -7,7 +7,7 @@
 3. Jalankan `supabase start`.
 4. Terapkan migration dengan `supabase db reset`.
 5. Seed dijalankan sebagai bagian dari reset jika `seed.sql` dikonfigurasi sebagai seed file; atau jalankan manual dengan `supabase db query < supabase/seed.sql`.
-6. Salin `.env.example` menjadi `.env.local`, lalu isi URL dan anon key dari `supabase status`. Simpan service role key hanya di server.
+6. Salin `.env.example` menjadi `.env.local`, lalu isi URL dan anon key dari `supabase status`.
 
 ## Menjalankan pada project Supabase hosted
 
@@ -22,6 +22,10 @@ anonim per IP (maksimal 5 kiriman per jam). Isi `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
 dan `TURNSTILE_SECRET_KEY` pada `.env.local`; gunakan site key/secret Cloudflare
 Turnstile untuk production dan jangan pernah menaruh secret di browser.
 
+Migration `20261010000000_remove_admin.sql` menghapus akun dan akses staf/admin
+dari database, sekaligus mempertahankan kebijakan baca publik dan pengiriman
+pengaduan. Terapkan dengan `supabase db push` pada project hosted.
+
 ## Uji manual pengaduan
 
 1. Jalankan aplikasi dengan environment Supabase dan Turnstile yang valid, lalu
@@ -30,13 +34,8 @@ Turnstile untuk production dan jangan pernah menaruh secret di browser.
 2. Dengan anon key, jalankan `select * from public.pengaduan;` melalui Supabase
    client. Hasil harus kosong/tidak memiliki baris, sedangkan halaman
    `/pengaduan/status` hanya menampilkan status, kategori, tanggal, dan balasan.
-3. Login sebagai editor/admin dan buka `/admin/pengaduan`. Pastikan daftar,
-   filter status, signed URL lampiran, pembaruan status/balasan, dan ekspor CSV
-   hanya tersedia setelah login.
-4. Kirim lebih dari lima laporan dari IP yang sama dalam satu jam. Kiriman
+3. Kirim lebih dari lima laporan dari IP yang sama dalam satu jam. Kiriman
    berikutnya harus ditolak oleh RPC rate-limit.
-
-Untuk membuat akun admin pertama, ikuti [ADMIN_SETUP.md](./ADMIN_SETUP.md).
 
 ## Tiga query uji keamanan
 

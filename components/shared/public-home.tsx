@@ -1,15 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { PublicHomeClient, type PublicHomeData } from "@/components/shared/public-home-client";
-import { FasilitasSection } from "@/components/shared/fasilitas-section";
 
 export async function PublicHome() {
   const supabase = await createClient();
-  const [{ data: profile }, { data: layanan }, { data: berita }, { data: agenda }] = await Promise.all([
+  const [{ data: profile, error: profileError }, { data: layanan }] = await Promise.all([
     supabase.from("profil_kelurahan").select("sambutan, alamat, telepon, whatsapp, email, jam_pelayanan, zona_waktu, lingkungan, jumlah_penduduk").maybeSingle(),
     supabase.from("layanan").select("id, nama, slug, ringkasan, urutan").eq("aktif", true).order("urutan").limit(6),
-    supabase.from("berita").select("id, judul, slug, ringkasan, gambar_url, kategori, terbit_pada").eq("status", "terbit").lte("terbit_pada", new Date().toISOString()).order("terbit_pada", { ascending: false }).limit(3),
-    supabase.from("agenda").select("id, judul, mulai, lokasi").gte("mulai", new Date().toISOString()).order("mulai").limit(3),
   ]);
+  if (profileError) console.error("profil_kelurahan:", profileError.message);
 
-  return <PublicHomeClient data={{ profile: profile as PublicHomeData["profile"], layanan: layanan ?? [], berita: berita ?? [], agenda: agenda ?? [] }} />;
+  return <PublicHomeClient data={{ profile: profile as PublicHomeData["profile"], layanan: layanan ?? [] }} />;
 }
