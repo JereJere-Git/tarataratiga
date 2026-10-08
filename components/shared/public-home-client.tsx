@@ -9,10 +9,11 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { GlassButton, GlassCard, GlassChip } from "@/components/shared/glass";
 import { Reveal } from "@/components/shared/reveal";
 import { Container, SectionHeading } from "@/components/shared/layout";
+import { FasilitasSection } from "@/components/shared/fasilitas-section";
 
 type Profile = {
   sambutan: string | null; alamat: string | null; telepon: string | null; whatsapp: string | null; email: string | null;
-  jam_pelayanan: Record<string, { buka?: string; tutup?: string }>; zona_waktu: string; jumlah_rt: number; jumlah_rw: number; jumlah_penduduk: number;
+  jam_pelayanan: Record<string, { buka?: string; tutup?: string }>; zona_waktu: number; lingkungan: number; jumlah_penduduk: number;
 };
 export type PublicHomeData = { profile: Profile | null; layanan: { id: string; nama: string; slug: string; ringkasan: string | null; urutan: number }[]; berita: { id: string; judul: string; slug: string; ringkasan: string | null; gambar_url: string | null; kategori: string | null; terbit_pada: string | null }[]; agenda: { id: string; judul: string; mulai: string; lokasi: string | null }[] };
 
@@ -36,43 +37,6 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
         <Reveal><GlassChip className={status.open ? "text-emerald-700 dark:text-emerald-300" : "text-slate-600 dark:text-slate-300"}><span className={`mr-2 inline-block h-2 w-2 rounded-full ${status.open ? "bg-emerald-500" : "bg-slate-400"}`} />{status.open ? "Buka sekarang" : "Tutup"} · {status.label}</GlassChip><h1 className="mt-6 max-w-3xl text-5xl font-extrabold leading-[1.05] tracking-[-.06em] sm:text-[60px]">Melayani warga, <span className="text-[var(--primary)]">dengan hati.</span></h1><p className="text-muted mt-6 max-w-xl text-base leading-8 sm:text-lg">{data.profile?.sambutan ?? "Portal resmi Kelurahan Taratara Tiga, Kecamatan Tomohon Barat."}</p><div className="mt-8 flex flex-wrap gap-3"><Link href="#layanan"><GlassButton>Lihat Layanan <ArrowRight size={17} /></GlassButton></Link><Link href="/pengaduan"><GlassButton variant="secondary">Cek Status Pengaduan</GlassButton></Link></div></Reveal>
         <Reveal delay={.1} className="relative min-h-[360px] overflow-hidden rounded-[32px] shadow-2xl shadow-[var(--primary)]/20"><Image src="/bg/hero.jpeg" alt="Pemandangan alam dan persawahan di sekitar Tomohon" fill priority sizes="(max-width: 768px) 100vw, 42vw" className="object-cover object-center" /><div className="absolute inset-0 bg-gradient-to-t from-[#0f1f17]/85 via-[#0f1f17]/15 to-transparent" /><div className="absolute bottom-6 left-6 right-6 text-white"><p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[var(--accent)]"><MapPin size={14} /> Tomohon Barat</p><p className="max-w-sm text-2xl font-bold drop-shadow-md">Informasi kelurahan yang dekat dengan warga.</p></div></Reveal>
       </section>
-
-      <Reveal id="layanan" className="py-10">
-        <SectionHeading eyebrow="Layanan publik" title="Ada yang bisa kami bantu?" description="Pilih layanan yang Anda perlukan dan ikuti alurnya dengan mudah." />
-
-        <div className="mt-8 mb-10">
-          <div className="glass-strong rounded-3xl p-6 sm:p-8">
-            <h3 className="mb-8 text-lg font-extrabold text-center">Alur Pelayanan Umum</h3>
-            <div className="grid gap-6 sm:grid-cols-3 relative">
-              <div className="hidden sm:block absolute top-6 left-[16%] right-[16%] h-0.5 bg-[var(--line)] z-0"></div>
-
-              <div className="relative z-10 flex flex-col items-center text-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] text-white font-bold text-xl ring-4 ring-white dark:ring-[#102b1a]">1</span>
-                <div>
-                  <h4 className="font-bold">Siapkan Berkas</h4>
-                  <p className="text-xs text-muted mt-1">Lengkapi dokumen sesuai persyaratan layanan.</p>
-                </div>
-              </div>
-              <div className="relative z-10 flex flex-col items-center text-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] text-white font-bold text-xl ring-4 ring-white dark:ring-[#102b1a]">2</span>
-                <div>
-                  <h4 className="font-bold">Kunjungi Kantor</h4>
-                  <p className="text-xs text-muted mt-1">Datang ke kelurahan pada jam kerja.</p>
-                </div>
-              </div>
-              <div className="relative z-10 flex flex-col items-center text-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] text-white font-bold text-xl ring-4 ring-white dark:ring-[#102b1a]">3</span>
-                <div>
-                  <h4 className="font-bold">Proses Selesai</h4>
-                  <p className="text-xs text-muted mt-1">Layanan atau dokumen Anda akan diterbitkan.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{data.layanan.length ? data.layanan.map((item) => <motion.div key={item.id} whileHover={{ y: -6 }} transition={{ type: "spring", stiffness: 300, damping: 28 }}><GlassCard className="h-full p-5"><span className="mb-6 flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] dark:bg-[var(--primary-soft)]"><ShieldCheck size={20} /></span><h3 className="font-extrabold">{item.nama}</h3><p className="text-muted mt-2 text-sm leading-6">{item.ringkasan}</p><Link href={`/layanan/${item.slug}`} className="focus-ring mt-5 inline-flex min-h-11 items-center gap-1 text-sm font-bold text-[var(--primary)]">Lihat syarat <ChevronRight size={16} /></Link></GlassCard></motion.div>) : <div className="sm:col-span-2 lg:col-span-3"><EmptyState title="Layanan segera hadir" description="Informasi layanan sedang disiapkan oleh kelurahan." /></div>}</div>
-      </Reveal>
 
       <Reveal id="overview" className="py-12">
         <div className="glass-strong rounded-3xl p-8 sm:p-12">
@@ -112,7 +76,7 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
               </div>
               <div className="border-b border-[var(--line)] pb-4">
                 <p className="text-xs text-muted font-medium mb-1">Wilayah</p>
-                <p className="font-semibold text-sm">{data.profile?.jumlah_rw ?? 0} lingkungan</p>
+                <p className="font-semibold text-sm">{data.profile?.lingkungan ?? 0} lingkungan</p>
               </div>
               <div className="border-b border-[var(--line)] pb-4 sm:border-0 sm:pb-0">
                 <p className="text-xs text-muted font-medium mb-1">Luas Kelurahan</p>
@@ -131,23 +95,45 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
 
       <Reveal className="grid gap-5 py-10 md:grid-cols-2"><GlassCard className="flex items-center gap-4 p-6"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)]"><Images size={22} /></span><div><h2 className="font-extrabold">Galeri kegiatan</h2><p className="text-muted mt-1 text-sm">Dokumentasi kegiatan warga dan pelayanan kelurahan.</p><Link href="/galeri" className="mt-3 inline-flex font-bold text-[var(--primary)]">Lihat galeri <ChevronRight size={16} /></Link></div></GlassCard><GlassCard className="flex items-center gap-4 p-6"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)]"><Sparkles size={22} /></span><div><h2 className="font-extrabold">Potensi wilayah</h2><p className="text-muted mt-1 text-sm">Kenali potensi lokal dan usaha warga Taratara Tiga.</p><div className="mt-3 flex gap-3 text-sm font-bold"><Link href="/potensi" className="text-[var(--primary)]">Lihat potensi</Link><Link href="/umkm" className="text-[var(--primary)]">Lihat UMKM</Link></div></div></GlassCard></Reveal>
 
-      <Reveal id="fasilitas" className="py-10">
-        <SectionHeading eyebrow="Infrastruktur" title="Fasilitas Kelurahan" description="Fasilitas umum yang tersedia untuk mendukung kegiatan warga." />
-        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { name: "Balai Kelurahan", desc: "Pusat pelayanan dan pertemuan warga", icon: <Users size={20} /> },
-            { name: "Puskesmas Pembantu", desc: "Fasilitas kesehatan tingkat pertama", icon: <ShieldCheck size={20} /> },
-            { name: "Lapangan Olahraga", desc: "Fasilitas olahraga dan rekreasi", icon: <MapPin size={20} /> },
-            { name: "Gedung Serbaguna", desc: "Untuk berbagai acara kemasyarakatan", icon: <Users size={20} /> },
-          ].map((fas, i) => (
-            <GlassCard key={i} className="p-5 flex flex-col items-start">
-              <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)]">{fas.icon}</span>
-              <h3 className="font-bold">{fas.name}</h3>
-              <p className="text-muted mt-1 text-xs">{fas.desc}</p>
-            </GlassCard>
-          ))}
+      <Reveal id="layanan" className="py-10">
+        <SectionHeading eyebrow="Layanan publik" title="Ada yang bisa kami bantu?" description="Pilih layanan yang Anda perlukan dan ikuti alurnya dengan mudah." />
+
+        <div className="mt-8 mb-10">
+          <div className="glass-strong rounded-3xl p-6 sm:p-8">
+            <h3 className="mb-8 text-lg font-extrabold text-center">Alur Pelayanan Umum</h3>
+            <div className="grid gap-6 sm:grid-cols-3 relative">
+              <div className="hidden sm:block absolute top-6 left-[16%] right-[16%] h-0.5 bg-[var(--line)] z-0"></div>
+
+              <div className="relative z-10 flex flex-col items-center text-center gap-3">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] text-white font-bold text-xl ring-4 ring-white dark:ring-[#102b1a]">1</span>
+                <div>
+                  <h4 className="font-bold">Siapkan Berkas</h4>
+                  <p className="text-xs text-muted mt-1">Lengkapi dokumen sesuai persyaratan layanan.</p>
+                </div>
+              </div>
+              <div className="relative z-10 flex flex-col items-center text-center gap-3">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] text-white font-bold text-xl ring-4 ring-white dark:ring-[#102b1a]">2</span>
+                <div>
+                  <h4 className="font-bold">Kunjungi Kantor</h4>
+                  <p className="text-xs text-muted mt-1">Datang ke kelurahan pada jam kerja.</p>
+                </div>
+              </div>
+              <div className="relative z-10 flex flex-col items-center text-center gap-3">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] text-white font-bold text-xl ring-4 ring-white dark:ring-[#102b1a]">3</span>
+                <div>
+                  <h4 className="font-bold">Proses Selesai</h4>
+                  <p className="text-xs text-muted mt-1">Layanan atau dokumen Anda akan diterbitkan.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{data.layanan.length ? data.layanan.map((item) => <motion.div key={item.id} whileHover={{ y: -6 }} transition={{ type: "spring", stiffness: 300, damping: 28 }}><GlassCard className="h-full p-5"><span className="mb-6 flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] dark:bg-[var(--primary-soft)]"><ShieldCheck size={20} /></span><h3 className="font-extrabold">{item.nama}</h3><p className="text-muted mt-2 text-sm leading-6">{item.ringkasan}</p><Link href={`/layanan/${item.slug}`} className="focus-ring mt-5 inline-flex min-h-11 items-center gap-1 text-sm font-bold text-[var(--primary)]">Lihat syarat <ChevronRight size={16} /></Link></GlassCard></motion.div>) : <div className="sm:col-span-2 lg:col-span-3"><EmptyState title="Layanan segera hadir" description="Informasi layanan sedang disiapkan oleh kelurahan." /></div>}</div>
       </Reveal>
+
+
+         <FasilitasSection />
 
       <Reveal id="profil" className="py-10"><GlassCard className="flex flex-col items-start gap-6 p-7 sm:flex-row sm:items-center sm:justify-between sm:p-10"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[var(--accent)]">Suara warga</p><h2 className="mt-2 text-2xl font-extrabold">Ada yang perlu disampaikan?</h2><p className="text-muted mt-2 max-w-lg text-sm leading-6">Sampaikan pengaduan atau masukan. Kami akan menindaklanjuti dengan transparan.</p></div><Link href="/pengaduan"><GlassButton> <MessageCircle size={17} /> Buat Pengaduan</GlassButton></Link></GlassCard></Reveal>
     </Container>
