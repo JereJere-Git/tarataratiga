@@ -18,6 +18,7 @@ export const KATEGORI: Record<Kategori, string> = {
   ekonomi: "Ekonomi & Pertanian",
   ibadah: "Ibadah",
   pendidikan: "Pendidikan",
+  lainnya: " ",
 };
 
 export function mapsUrl(item: Fasilitas): string | null {
@@ -46,4 +47,5 @@ export const fasilitas: Fasilitas[] = [
   { nama: "TKN Taratara", kategori: "pendidikan", deskripsi: "Taman kanak-kanak negeri.", foto: "/fasilitas/tkn-taratara.jpg", maps: "https://maps.app.goo.gl/qozc5VvULA2AKrK58" },
   { nama: "SD GMIM 2 Taratara", kategori: "pendidikan", deskripsi: "Sekolah dasar.", foto: "/fasilitas/sd-gmim-2.jpg", maps: "https://maps.app.goo.gl/mxkZi3YUyB2Q76Pv5" },
   { nama: "SMA Negeri 2 Tomohon", kategori: "pendidikan", deskripsi: "Sekolah menengah atas negeri.", foto: "/fasilitas/sma-negeri-2-tomohon.jpg", maps: "https://maps.app.goo.gl/Wi8vEy4YdRepL2dL6" },
+  { nama: "Pekuburan Desa Taratara", kategori: "lainnya", deskripsi: "Pemakaman Umum untuk warga taratara tiga.", foto: "/fasilitas/pekuburan-umum.jpg", maps: "https://maps.app.goo.gl/jiXBNGtHhHvERTTs5" },
 ];

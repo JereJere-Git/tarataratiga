@@ -1,16 +1,15 @@
 "use client";
 
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { Home, Menu, X, MessageCircle, Newspaper, CalendarDays, MapPinned, ChevronDown, Images, FileText, Store, LayoutGrid, Map as MapIcon, TrendingUp, BarChart2 } from "lucide-react";
+import { Home, Menu, X, MessageCircle, MapPinned, ChevronDown, Images, FileText, Store, LayoutGrid, Map as MapIcon, TrendingUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CommandPalette } from "@/components/shared/command-palette";
 
-const links = [["Profil", "/#profil"], ["Layanan", "/#layanan"], ["Peta", "/peta"], ["Statistik", "/statistik"], ["Berita", "/berita"], ["Kontak", "/kontak"]] as const;
+const links = [["Profil", "/#profil"], ["Layanan", "/#layanan"], ["Peta", "/peta"], ["Statistik", "/statistik"], ["Kontak", "/kontak"]] as const;
 
 const informationLinks = [
-  { label: "Agenda", description: "Jadwal kegiatan warga", href: "/agenda", icon: CalendarDays },
   { label: "Galeri", description: "Dokumentasi kegiatan", href: "/galeri", icon: Images },
   { label: "Fasilitas", description: "Daftar fasilitas desa", href: "/#fasilitas", icon: MapPinned },
   { label: "UMKM", description: "Informasi usaha warga", href: "/#keunggulan", icon: Store },
@@ -150,6 +149,6 @@ export function FloatingNav() {
 
 export function BottomTabBar() {
   const pathname = usePathname();
-  const tabs = [["Beranda", "/", Home], ["Layanan", "/#layanan", Menu], ["Peta", "/peta", MapIcon], ["Statistik", "/statistik", TrendingUp], ["Berita", "/berita", Newspaper]] as const;
+  const tabs = [["Beranda", "/", Home], ["Layanan", "/#layanan", Menu], ["Peta", "/peta", MapIcon], ["Statistik", "/statistik", TrendingUp], ["Kontak", "/#hubungi", MessageCircle]] as const;
   return <nav className="glass-pill fixed bottom-4 left-1/2 z-50 flex w-[calc(100%-32px)] max-w-sm -translate-x-1/2 items-center justify-around p-2 md:hidden">{tabs.map(([label, href, Icon]) => <Link key={href} href={href} className={`focus-ring flex min-h-11 min-w-11 flex-col items-center justify-center rounded-full text-[10px] font-bold ${pathname === href || (href !== "/" && pathname.startsWith(`${href}/`)) ? "bg-[var(--primary)] text-white" : ""}`}><Icon size={17} /><span>{label}</span></Link>)}</nav>;
 }

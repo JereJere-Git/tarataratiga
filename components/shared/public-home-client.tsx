@@ -10,6 +10,7 @@ import { Reveal } from "@/components/shared/reveal";
 import { Container, SectionHeading } from "@/components/shared/layout";
 import { FasilitasSection } from "@/components/shared/fasilitas-section";
 import { waLink } from "@/lib/whatsapp";
+import { ringkasJam } from "@/lib/jam";
 
 type Profile = {
   sambutan: string | null; alamat: string | null; telepon: string | null; whatsapp: string | null; email: string | null;
@@ -20,16 +21,30 @@ export type PublicHomeData = {
   layanan: { id: string; nama: string; slug: string; ringkasan: string | null; urutan: number }[];
 };
 
+const DAY_KEYS = ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"];
+const EN_DAY: Record<string, number> = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
+
 function officeStatus(profile: Profile | null) {
   if (!profile) return { open: false, label: "Informasi jam pelayanan belum tersedia" };
   const now = new Date();
-  const englishDay = new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: profile.zona_waktu }).format(now).toLowerCase();
-  const day = ({ sunday: "minggu", monday: "senin", tuesday: "selasa", wednesday: "rabu", thursday: "kamis", friday: "jumat", saturday: "sabtu" } as Record<string, string>)[englishDay] ?? "senin";
-  const schedule = profile.jam_pelayanan?.[day];
-  if (!schedule?.buka || !schedule?.tutup) return { open: false, label: "Tutup hari ini" };
-  const time = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: profile.zona_waktu }).format(now);
-  const open = time >= schedule.buka && time < schedule.tutup;
-  return { open, label: open ? `Buka hingga ${schedule.tutup}` : `Buka ${schedule.buka} besok` };
+  const tz = profile.zona_waktu;
+  const today = EN_DAY[new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: tz }).format(now).toLowerCase()] ?? 1;
+  const time = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: tz }).format(now);
+  const hoursOf = (index: number) => {
+    const entry = profile.jam_pelayanan?.[DAY_KEYS[index % 7]];
+    return entry?.buka && entry?.tutup ? entry : null;
+  };
+  const todayHours = hoursOf(today);
+  if (todayHours && time >= todayHours.buka! && time < todayHours.tutup!) return { open: true, label: `Buka hingga ${todayHours.tutup}` };
+  if (todayHours && time < todayHours.buka!) return { open: false, label: `Buka hari ini ${todayHours.buka}` };
+  for (let step = 1; step <= 7; step++) {
+    const next = hoursOf(today + step);
+    if (next) {
+      const name = step === 1 ? "besok" : DAY_KEYS[(today + step) % 7].replace(/^./, (c) => c.toUpperCase());
+      return { open: false, label: `Buka ${name} ${next.buka}` };
+    }
+  }
+  return { open: false, label: "Tutup" };
 }
 
 export function PublicHomeClient({ data }: { data: PublicHomeData }) {
@@ -211,6 +226,6 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
   </main>;
 }
 
-export function Footer({ profile }: { profile: Pick<Profile, "alamat" | "telepon"> | null }) {
-  return <footer id="kontak" className="px-5 pb-8 sm:px-8"><div className="glass-pill mx-auto flex max-w-7xl flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-extrabold">Kelurahan Taratara Tiga</p><p className="text-muted mt-1 flex items-center gap-2 text-xs"><MapPin size={13} />{profile?.alamat ?? "Tomohon Barat, Tomohon"}</p></div><div className="flex flex-wrap gap-4 text-xs font-semibold text-muted"><span className="flex items-center gap-1"><Phone size={13} />{profile?.telepon ?? "-"}</span><span className="flex items-center gap-1"><Clock3 size={13} />Senin-Jumat, 08.00-16.00</span><Link href="/profil" className="text-[var(--primary)]">Profil</Link><Link href="/layanan" className="text-[var(--primary)]">Layanan</Link><Link href="/berita" className="text-[var(--primary)]">Berita</Link><Link href="/agenda" className="text-[var(--primary)]">Agenda</Link><Link href="/lokasi" className="text-[var(--primary)]">Lokasi</Link><Link href="/kontak" className="text-[var(--primary)]">Kontak</Link></div></div></footer>;
+export function Footer({ profile }: { profile: (Pick<Profile, "alamat" | "telepon"> & { jam_pelayanan?: Profile["jam_pelayanan"] }) | null }) {
+  return <footer id="kontak" className="px-5 pb-8 sm:px-8"><div className="glass-pill mx-auto flex max-w-7xl flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-extrabold">Kelurahan Taratara Tiga</p><p className="text-muted mt-1 flex items-center gap-2 text-xs"><MapPin size={13} />{profile?.alamat ?? "Tomohon Barat, Tomohon"}</p></div><div className="flex flex-wrap gap-4 text-xs font-semibold text-muted"><span className="flex items-center gap-1"><Phone size={13} />{profile?.telepon ?? "-"}</span><span className="flex items-center gap-1"><Clock3 size={13} />{ringkasJam(profile?.jam_pelayanan)}</span><Link href="/profil" className="text-[var(--primary)]">Profil</Link><Link href="/layanan" className="text-[var(--primary)]">Layanan</Link><Link href="/lokasi" className="text-[var(--primary)]">Lokasi</Link><Link href="/kontak" className="text-[var(--primary)]">Kontak</Link></div></div></footer>;
 }
