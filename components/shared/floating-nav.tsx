@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Menu, X, MessageCircle, MapPinned, Images, Store, Map as MapIcon, TrendingUp, UserRound, ClipboardList } from "lucide-react";
+import { Home, Menu, X, MessageCircle, MapPinned, Images, Map as MapIcon, TrendingUp, UserRound, ClipboardList } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,7 +13,6 @@ const links = [
   { label: "Statistik", href: "/statistik", icon: TrendingUp },
   { label: "Galeri", href: "/#galeri", icon: Images },
   { label: "Fasilitas", href: "/#fasilitas", icon: MapPinned },
-  { label: "UMKM", href: "/umkm", icon: Store },
   { label: "Kontak", href: "/#hubungi", icon: MessageCircle },
 ] as const;
 
