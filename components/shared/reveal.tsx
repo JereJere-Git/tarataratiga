@@ -1,8 +1,30 @@
 "use client";
 
 import { motion, type MotionProps } from "framer-motion";
-import type { PropsWithChildren } from "react";
+import { useLayoutEffect, useRef, type PropsWithChildren } from "react";
 
 export function Reveal({ children, className, delay = 0, ...props }: PropsWithChildren<MotionProps & { delay?: number; className?: string; id?: string }>) {
-  return <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ delay, type: "spring", stiffness: 300, damping: 28 }} className={className} {...props}>{children}</motion.div>;
+  const ref = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const bounds = element.getBoundingClientRect();
+    const startsVisible = bounds.top < window.innerHeight && bounds.bottom > 0;
+    if (startsVisible || !("IntersectionObserver" in window)) return;
+
+    element.style.setProperty("--reveal-delay", `${delay}s`);
+    element.classList.add("reveal-pending");
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        element.classList.remove("reveal-pending");
+        observer.disconnect();
+      }
+    }, { rootMargin: "0px 0px -48px 0px", threshold: 0.01 });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [delay]);
+
+  return <motion.div ref={ref} initial={false} className={`${className ?? ""} reveal-on-scroll`} {...props}>{children}</motion.div>;
 }

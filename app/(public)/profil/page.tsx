@@ -23,7 +23,7 @@ export default async function ProfilPage() {
           <p className="inline-flex items-center gap-2 rounded-full border border-emerald-700/15 bg-white/70 px-3 py-1.5 text-xs font-bold uppercase tracking-[.13em] text-[var(--primary)] dark:bg-white/5"><MapPin size={14} /> Tomohon Barat · Sulawesi Utara</p>
           <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-5xl">Profil Taratara Tiga</h1>
           <p className="text-muted mt-4 max-w-2xl text-sm leading-7 sm:text-base">Sebuah kisah yang berawal dari perjalanan para Tonaas, tumbuh bersama alam, dan berlanjut dalam semangat mapalus. Jelajahi cerita, linimasa, dan tokoh yang membentuk kelurahan ini.</p>
-          <div className="mt-5 flex flex-wrap gap-2"><GlassChip><BookOpen size={13} className="mr-1.5" />Berdasarkan dokumen sejarah Taratara</GlassChip><GlassChip>1303 — sekarang</GlassChip></div>
+          <div className="mt-5 flex flex-wrap gap-2"><GlassChip><BookOpen size={13} className="mr-1.5" />Kisah dan linimasa kelurahan</GlassChip><GlassChip>1303 — sekarang</GlassChip></div>
         </div>
       </section>
 
@@ -33,8 +33,10 @@ export default async function ProfilPage() {
       </section>
 
       <HistoryProfile />
+      <p className="text-muted mt-3 px-1 text-xs italic leading-5">Sumber sejarah dan budaya: <em>Sejarah Taratara.docx</em>. Periode kepemimpinan ditampilkan mengikuti keterangan yang tercantum di dalam dokumen.</p>
 
       <OrganizationChart />
+      <p className="text-muted mt-3 px-1 text-xs italic leading-5">Sumber struktur perangkat: foto bagan organisasi Kelurahan Taratara Tiga yang diberikan oleh kelurahan.</p>
     </Container>
   </main>;
 }

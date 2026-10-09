@@ -10,7 +10,7 @@
   --muted: #3e5a54;
   --primary: #047857;
   --primary-soft: #d1fae5;
-  --accent: #6ee7b7;
+  --accent: #047857;
   --line: rgba(4, 120, 87, 0.16);
   --shadow: 0 12px 32px rgba(15, 118, 110, 0.12);
   --skeleton: rgba(4, 120, 87, 0.1);
@@ -41,6 +41,8 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; overflow-x: hidden; background: var(--background); color: var(--foreground); font-family: var(--font-jakarta), sans-serif; }
+a, button { -webkit-tap-highlight-color: transparent; }
+button:active, a:active { transition-duration: .08s; }
 
 /* Latar lama (dipertahankan bila masih dipakai komponen lain) */
 .mesh-bg { position: relative; isolation: isolate; min-height: 100vh; background: linear-gradient(160deg, #e6fbf3 0%, #f6fffb 45%, #eef9ff 100%); }
@@ -52,7 +54,7 @@ body { margin: 0; overflow-x: hidden; background: var(--background); color: var(
 
 /* Latar utama: mint, putih, biru es + 3 blob bergerak pelan (zamrud, teal, biru langit) */
 .aurora-background { position: relative; isolation: isolate; min-height: 100vh; overflow: hidden; background: linear-gradient(160deg, #e6fbf3 0%, #f6fffb 45%, #eef9ff 100%); }
-.aurora-blob { position: fixed; z-index: -1; pointer-events: none; border-radius: 999px; filter: blur(70px); opacity: .55; animation: aurora-drift 16s ease-in-out infinite alternate; will-change: transform; }
+.aurora-blob { position: fixed; z-index: -1; pointer-events: none; border-radius: 999px; filter: blur(70px); opacity: .55; animation: aurora-drift 28s ease-in-out infinite alternate; }
 .aurora-blob-mint { width: min(480px, 70vw); height: min(480px, 70vw); top: -120px; left: -100px; background: #34d399; }
 .aurora-blob-green { width: min(420px, 60vw); height: min(420px, 60vw); top: 35vh; right: -120px; background: #2dd4bf; opacity: .4; animation-delay: -6s; }
 .aurora-blob-soft { width: min(380px, 55vw); height: min(380px, 55vw); bottom: -60px; left: 20%; background: #7dd3fc; opacity: .4; animation-delay: -11s; }
@@ -74,6 +76,10 @@ body { margin: 0; overflow-x: hidden; background: var(--background); color: var(
 .glass { background: rgba(255,255,255,.36); -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); border-radius: 30px; }
 .glass-strong { background: rgba(246,255,251,.74); -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%); border-radius: 30px; }
 .glass-pill { background: var(--surface); -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); border-radius: 999px; }
+.glass, .glass-strong, .glass-pill { transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .glass:hover, .glass-strong:hover { border-color: color-mix(in srgb, var(--primary) 28%, transparent); box-shadow: var(--shadow), 0 0 0 1px color-mix(in srgb, var(--primary) 10%, transparent), inset 0 0 22px 1px rgba(255,255,255,.3); }
+}
 .dark .glass, .dark .glass-strong, .dark .glass-pill {
   border-color: rgba(167, 243, 208, 0.22);
   box-shadow:
@@ -93,10 +99,16 @@ body { margin: 0; overflow-x: hidden; background: var(--background); color: var(
 .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(4,120,87,.18); }
 .dark .form-input { background: rgba(6,26,22,.7); }
 .focus-ring:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+.reveal-on-scroll { transition: opacity .48s cubic-bezier(.22,1,.36,1) var(--reveal-delay, 0s), transform .48s cubic-bezier(.22,1,.36,1) var(--reveal-delay, 0s); }
+.reveal-pending { opacity: 0; transform: translate3d(0, 14px, 0); }
+@media (prefers-reduced-motion: reduce) { .reveal-on-scroll { transition: none; } .reveal-pending { opacity: 1; transform: none; } }
 @supports not (backdrop-filter: blur(1px)) { .glass, .glass-pill { background: rgba(255,255,255,.92); } .glass-strong { background: rgba(246,255,251,.98); } }
-@media (max-width: 767px) { .mesh-bg::before, .mesh-bg::after { filter: blur(52px); width: 55vw; height: 55vw; } .mesh-soft { display: none; } .aurora-blob { filter: blur(50px); } .aurora-blob-soft { display: none; } .glass, .glass-pill { -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); } }
+@media (max-width: 767px) { .mesh-bg::before, .mesh-bg::after { filter: blur(52px); width: 55vw; height: 55vw; } .mesh-soft { display: none; } .aurora-blob { filter: blur(42px); animation: none; } .aurora-blob-soft { display: none; } .glass, .glass-pill { -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); } }
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) { .glass, .glass-strong, .glass-pill { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--surface-strong); border: 2px solid currentColor; box-shadow: none !important; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+.status-live-dot { animation: status-pulse 2.2s ease-in-out infinite; }
+@keyframes status-pulse { 50% { opacity: .45; transform: scale(.82); } }
+@media (prefers-reduced-motion: reduce) { .status-live-dot { animation: none; } }
 
 @media (hover: hover) and (pointer: fine) {
   .cursor-glow { display: block; }

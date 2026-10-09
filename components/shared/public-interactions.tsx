@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Clipboard, Printer, Search, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { GlassButton, GlassCard, GlassChip } from "@/components/shared/glass";
@@ -15,24 +15,32 @@ export function ServiceSearch({ services }: { services: { id: string; nama: stri
 
 export function ServiceChecklist({ slug, items }: { slug: string; items: string[] }) {
   const key = `layanan-checklist-${slug}`;
-  const [checked, setChecked] = useState<boolean[]>(() => {
-    if (typeof window === "undefined") return items.map(() => false);
-    const stored = window.localStorage.getItem(key);
-    if (!stored) return items.map(() => false);
+  const [checked, setChecked] = useState<boolean[]>(() => items.map(() => false));
+  useEffect(() => {
     try {
-      const parsed = JSON.parse(stored) as boolean[];
-      return parsed.length === items.length ? parsed : items.map(() => false);
+      const stored = window.localStorage.getItem(key);
+      if (!stored) return;
+      const parsed: unknown = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length === items.length && parsed.every((value) => typeof value === "boolean")) {
+        // Restore a browser-only preference after hydration to keep server markup deterministic.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setChecked(parsed);
+      }
     } catch {
-      return items.map(() => false);
+      // Storage may be unavailable; the checklist still works for this visit.
     }
-  });
+  }, [items.length, key]);
   function toggle(index: number) {
     const next = checked.map((value, itemIndex) => itemIndex === index ? !value : value);
     setChecked(next);
-    window.localStorage.setItem(key, JSON.stringify(next));
+    try {
+      window.localStorage.setItem(key, JSON.stringify(next));
+    } catch {
+      // Keep the current selection usable if storage is disabled or full.
+    }
   }
   const complete = checked.filter(Boolean).length;
-  return <div className="glass-strong rounded-[28px] p-6"><div className="flex items-center justify-between gap-3"><div><h2 className="text-xl font-extrabold">Checklist berkas</h2><p className="text-muted mt-1 text-sm">Tersimpan otomatis di perangkat ini.</p></div><span className="font-extrabold text-[var(--primary)]">{complete}/{items.length}</span></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--primary-soft)] dark:bg-[var(--primary-soft)]"><motion.div className="h-full rounded-full bg-[var(--primary)]" animate={{ width: `${items.length ? (complete / items.length) * 100 : 0}%` }} /></div><p className="mt-2 text-xs font-semibold text-muted">Berkas siap {complete} dari {items.length}</p><div className="mt-5 space-y-2">{items.map((item, index) => <label key={`${item}-${index}`} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl px-3 transition hover:bg-white/40"><input type="checkbox" checked={checked[index] ?? false} onChange={() => toggle(index)} className="sr-only" /><span className={`flex h-6 w-6 items-center justify-center rounded-lg border ${checked[index] ? "border-[var(--primary)] bg-[var(--primary)] text-white" : "border-[var(--accent)]"}`}>{checked[index] && <Check size={15} />}</span><span className={checked[index] ? "text-muted line-through" : "font-semibold"}>{item}</span></label>)}</div><button type="button" onClick={() => window.print()} className="focus-ring glass-pill mt-5 inline-flex min-h-11 items-center gap-2 px-4 text-sm font-bold"><Printer size={16} />Cetak daftar syarat</button></div>;
+  return <div className="glass-strong rounded-[28px] p-6"><div className="flex items-center justify-between gap-3"><div><h2 className="text-xl font-extrabold">Checklist berkas</h2><p className="text-muted mt-1 text-sm">Tersimpan otomatis di perangkat ini.</p></div><span className="font-extrabold text-[var(--primary)]">{complete}/{items.length}</span></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--primary-soft)] dark:bg-[var(--primary-soft)]"><motion.div className="h-full rounded-full bg-[var(--primary)]" animate={{ width: `${items.length ? (complete / items.length) * 100 : 0}%` }} /></div><p className="mt-2 text-xs font-semibold text-muted">Berkas siap {complete} dari {items.length}</p><div className="mt-5 space-y-2">{items.map((item, index) => <label key={`${item}-${index}`} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl px-3 transition hover:bg-white/40"><input type="checkbox" checked={checked[index] ?? false} onChange={() => toggle(index)} className="peer sr-only" /><span className={`flex h-6 w-6 items-center justify-center rounded-lg border peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--primary)] ${checked[index] ? "border-[var(--primary)] bg-[var(--primary)] text-white" : "border-[var(--accent)]"}`}>{checked[index] && <Check size={15} />}</span><span className={checked[index] ? "text-muted line-through" : "font-semibold"}>{item}</span></label>)}</div><button type="button" onClick={() => window.print()} className="focus-ring glass-pill mt-5 inline-flex min-h-11 items-center gap-2 px-4 text-sm font-bold"><Printer size={16} />Cetak daftar syarat</button></div>;
 }
 
 export function ShareButtons({ title }: { title: string }) {

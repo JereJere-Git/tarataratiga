@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Container, SectionHeading } from "@/components/shared/layout";
 import { GlassCard, GlassButton } from "@/components/shared/glass";
 import { waLink } from "@/lib/whatsapp";
+import { jamTampilanPublik } from "@/lib/jam";
+import { NOMOR_KONTAK_SEMENTARA } from "@/lib/contact";
 
 const HARI = [
   ["senin", "Senin"], ["selasa", "Selasa"], ["rabu", "Rabu"], ["kamis", "Kamis"],
@@ -15,16 +17,18 @@ export default async function KontakPage() {
   const supabase = await createClient();
   const { data } = await supabase.from("profil_kelurahan").select("alamat, telepon, whatsapp, email, jam_pelayanan, zona_waktu, lat, lng").maybeSingle();
   const mapUrl = data?.lat && data?.lng ? `https://www.google.com/maps?q=${data.lat},${data.lng}&output=embed` : "";
-  const jam = (data?.jam_pelayanan ?? {}) as Jam;
-  const telHref = data?.telepon ? `tel:${data.telepon.replace(/[^\d+]/g, "")}` : undefined;
-  const waHref = waLink(data?.whatsapp, "Halo Kelurahan Taratara Tiga, saya ingin bertanya: ") ?? undefined;
+  const jam = jamTampilanPublik((data?.jam_pelayanan ?? {}) as Jam);
+  const telepon = data?.telepon || NOMOR_KONTAK_SEMENTARA;
+  const whatsapp = data?.whatsapp || NOMOR_KONTAK_SEMENTARA;
+  const telHref = `tel:${telepon.replace(/[^\d+]/g, "")}`;
+  const waHref = waLink(whatsapp, "Halo Kelurahan Taratara Tiga, saya ingin bertanya: ") ?? undefined;
 
   return <main className="pb-24 pt-28"><Container>
     <SectionHeading eyebrow="Hubungi kami" title="Kontak kelurahan" description="Kami siap membantu informasi dan kebutuhan pelayanan warga." />
 
     <div className="mt-8 grid gap-5 md:grid-cols-3">
-      <ContactCard icon={<Phone size={20} />} label="Telepon" value={data?.telepon ?? "-"} href={telHref} />
-      <ContactCard icon={<MessageCircle size={20} />} label="WhatsApp" value={data?.whatsapp ?? "-"} href={waHref} />
+      <ContactCard icon={<Phone size={20} />} label="Telepon" value={telepon} href={telHref} />
+      <ContactCard icon={<MessageCircle size={20} />} label="WhatsApp" value={whatsapp} href={waHref} />
       <ContactCard icon={<Mail size={20} />} label="Email" value={data?.email ?? "-"} href={data?.email ? `mailto:${data.email}` : undefined} />
     </div>
 

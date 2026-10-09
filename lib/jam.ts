@@ -1,4 +1,5 @@
 export type JamHari = { buka?: string; tutup?: string };
+export type JadwalPelayanan = Record<string, JamHari>;
 
 export const HARI = [
   ["senin", "Senin"], ["selasa", "Selasa"], ["rabu", "Rabu"], ["kamis", "Kamis"],
@@ -6,6 +7,14 @@ export const HARI = [
 ] as const;
 
 const fmt = (value: string) => value.replace(":", ".");
+
+/** Jadwal publik hari Sabtu ditutup pukul 14.00 sesuai ketentuan kelurahan. */
+export function jamTampilanPublik(jam: JadwalPelayanan | null | undefined): JadwalPelayanan {
+  return {
+    ...jam,
+    sabtu: { buka: jam?.sabtu?.buka ?? "08:00", tutup: "14:00" },
+  };
+}
 
 /** Contoh hasil: "Senin–Kamis 08.00–16.30 · Jumat 08.00–14.00 · Minggu tutup" */
 export function ringkasJam(jam: Record<string, JamHari> | null | undefined): string {

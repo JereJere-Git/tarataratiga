@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Building2, Droplets, Layers3, Ruler, Sprout, Users } from "lucide-react";
+import { Building2, Droplets, HeartPulse, Layers3, Ruler, Route, Sprout, Store, Users } from "lucide-react";
 import { PROFIL_2024 } from "@/lib/profil-2024";
 import { PotentialChart } from "@/components/shared/potential-chart";
 
@@ -34,10 +34,10 @@ export default function StatistikPage() {
           </p>
           <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-5xl">Taratara Tiga dalam angka</h1>
           <p className="text-muted mt-4 max-w-2xl text-sm leading-7 sm:text-base">
-            Ringkasan data penduduk, wilayah, dan potensi Kelurahan Taratara Tiga dari Daftar Isian Potensi Desa dan Kelurahan bulan {PROFIL_2024.bulan} {PROFIL_2024.tahun}.
+            Jelajahi ringkasan penduduk, wilayah, mata pencaharian, pertanian, dan fasilitas yang tersedia untuk warga.
           </p>
           <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-4 py-2 text-sm font-bold text-white">
-            <span className="h-2 w-2 rounded-full bg-emerald-200" /> Sumber data {PROFIL_2024.tahun}
+            <span className="h-2 w-2 rounded-full bg-emerald-200" /> Pembaruan {PROFIL_2024.tahun}
           </div>
         </div>
       </header>
@@ -71,17 +71,17 @@ export default function StatistikPage() {
         <article className={cardStyle}>
           <p className="text-xs font-bold uppercase tracking-[.15em] text-[var(--primary)]">Kependudukan</p>
           <h2 id="penduduk-heading" className="mt-1 text-xl font-extrabold">Komposisi penduduk</h2>
-          <p className="text-muted mt-2 text-sm leading-6">Rincian penduduk menurut jenis kelamin pada Profil Kelurahan {PROFIL_2024.tahun}.</p>
-          <div className="mt-6" role="img" aria-label={`Dari ${formatNumber.format(PROFIL_2024.penduduk.total)} jiwa, laki-laki ${formatNumber.format(PROFIL_2024.penduduk.lakiLaki)} (${formatDecimal.format(malePercent)} persen) dan perempuan ${formatNumber.format(PROFIL_2024.penduduk.perempuan)} (${formatDecimal.format(100 - malePercent)} persen).`}>
-            <div className="flex h-4 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
-              <div className="h-full bg-emerald-700" style={{ width: `${malePercent}%` }} />
-              <div className="h-full bg-teal-300" style={{ width: `${100 - malePercent}%` }} />
-            </div>
+          <p className="text-muted mt-2 text-sm leading-6">Jumlah {formatNumber.format(PROFIL_2024.penduduk.total)} jiwa, dirinci menurut jenis kelamin.</p>
+          <div className="mt-6 space-y-4" role="img" aria-label={`Grafik jumlah penduduk: laki-laki ${formatNumber.format(PROFIL_2024.penduduk.lakiLaki)} jiwa (${formatDecimal.format(malePercent)} persen), perempuan ${formatNumber.format(PROFIL_2024.penduduk.perempuan)} jiwa (${formatDecimal.format(100 - malePercent)} persen).`}>
+            {[
+              { label: "Laki-laki", count: PROFIL_2024.penduduk.lakiLaki, percent: malePercent, color: "bg-emerald-700" },
+              { label: "Perempuan", count: PROFIL_2024.penduduk.perempuan, percent: 100 - malePercent, color: "bg-teal-400" },
+            ].map((item) => <div key={item.label}>
+              <div className="flex items-center justify-between gap-3 text-sm"><span className="font-semibold">{item.label}</span><span className="tabular-nums"><strong>{formatNumber.format(item.count)} jiwa</strong><span className="text-muted ml-2">{formatDecimal.format(item.percent)}%</span></span></div>
+              <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-[var(--line)]/70"><div className={`h-full rounded-full ${item.color} transition-[width] duration-500`} style={{ width: `${item.percent}%` }} /></div>
+            </div>)}
           </div>
-          <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl bg-emerald-50/80 p-4 dark:bg-emerald-950/40"><dt className="flex items-center gap-2 text-sm font-bold"><span className="h-3 w-3 rounded-full bg-emerald-700" /> Laki-laki</dt><dd className="mt-2 text-2xl font-extrabold">{formatNumber.format(PROFIL_2024.penduduk.lakiLaki)} <span className="text-muted text-sm font-semibold">jiwa · {formatDecimal.format(malePercent)}%</span></dd></div>
-            <div className="rounded-2xl bg-teal-50/80 p-4 dark:bg-teal-950/40"><dt className="flex items-center gap-2 text-sm font-bold"><span className="h-3 w-3 rounded-full bg-teal-300" /> Perempuan</dt><dd className="mt-2 text-2xl font-extrabold">{formatNumber.format(PROFIL_2024.penduduk.perempuan)} <span className="text-muted text-sm font-semibold">jiwa · {formatDecimal.format(100 - malePercent)}%</span></dd></div>
-          </dl>
+          <p className="text-muted mt-4 text-[11px] italic leading-5">Sumber: <em>Daftar Isian Potensi Desa dan Kelurahan Taratara Tiga</em>, Desember {PROFIL_2024.tahun}.</p>
         </article>
         <article className={`${cardStyle} flex flex-col justify-center`}>
           <p className="text-xs font-bold uppercase tracking-[.15em] text-[var(--primary)]">Keluarga</p>
@@ -96,30 +96,32 @@ export default function StatistikPage() {
         <article className={cardStyle}>
           <p className="text-xs font-bold uppercase tracking-[.15em] text-[var(--primary)]">Mata pencaharian</p>
           <h2 id="pekerjaan-heading" className="mt-1 text-xl font-extrabold">Pekerjaan yang tercatat</h2>
-          <p className="text-muted mt-2 text-xs leading-5">Jumlah pada tabel pekerjaan Profil Kelurahan {PROFIL_2024.tahun}; batang dibandingkan dengan kategori terbesar.</p>
+          <p className="text-muted mt-2 text-xs leading-5">Batang menunjukkan perbandingan jumlah pada tiap kategori pekerjaan.</p>
           <ul className="mt-4 space-y-3">
             {PROFIL_2024.pekerjaan.map((job) => <li key={job.nama}>
               <div className="flex justify-between gap-3 text-xs"><span>{job.nama}</span><strong>{formatNumber.format(job.jumlah)} orang</strong></div>
               <div className="mt-1 h-2 overflow-hidden rounded-full bg-[var(--line)]/70"><div className="h-full rounded-full bg-[var(--primary)]" style={{ width: `${(job.jumlah / maxJobCount) * 100}%` }} /></div>
             </li>)}
           </ul>
+          <p className="text-muted mt-4 text-[11px] italic leading-5">Sumber: tabel pekerjaan dalam <em>Daftar Isian Potensi Desa dan Kelurahan Taratara Tiga</em>, Desember {PROFIL_2024.tahun}.</p>
         </article>
 
         <article className={cardStyle}>
           <p className="text-xs font-bold uppercase tracking-[.15em] text-[var(--primary)]">Sarana kelurahan</p>
           <h2 className="mt-1 text-xl font-extrabold">Fasilitas dan infrastruktur</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl bg-slate-50/80 p-4 dark:bg-white/5"><p className="flex items-center gap-2 text-sm font-bold"><Users size={16} /> Kesehatan</p><p className="text-muted mt-2 text-sm leading-6">{facilities.puskesmasPembantu} Puskesmas Pembantu · {facilities.posyandu} Posyandu</p><p className="text-muted text-sm leading-6">{facilities.dokterUmum} dokter umum · {facilities.bidan} bidan · {facilities.perawat} perawat</p></div>
+            <div className="rounded-2xl bg-slate-50/80 p-4 dark:bg-white/5"><p className="flex items-center gap-2 text-sm font-bold"><HeartPulse size={16} /> Kesehatan</p><p className="text-muted mt-2 text-sm leading-6">{facilities.puskesmasPembantu} Puskesmas Pembantu · {facilities.posyandu} Posyandu</p><p className="text-muted text-sm leading-6">{facilities.dokterUmum} dokter umum · {facilities.bidan} bidan · {facilities.perawat} perawat</p></div>
             <div className="rounded-2xl bg-slate-50/80 p-4 dark:bg-white/5"><p className="flex items-center gap-2 text-sm font-bold"><Droplets size={16} /> Air bersih</p><p className="text-muted mt-2 text-sm leading-6">{formatNumber.format(facilities.sumurPompa)} sumur pompa · {formatNumber.format(facilities.sumurGali)} sumur gali · {formatNumber.format(facilities.mataAir)} mata air</p></div>
-            <div className="rounded-2xl bg-slate-50/80 p-4 dark:bg-white/5"><p className="flex items-center gap-2 text-sm font-bold"><Ruler size={16} /> Jalan kelurahan</p><p className="text-muted mt-2 text-sm leading-6">{formatNumber.format(facilities.jalanAspalMeter)} m aspal · {formatNumber.format(facilities.jalanBetonMeter)} m beton/semen</p></div>
-            <div className="rounded-2xl bg-slate-50/80 p-4 dark:bg-white/5"><p className="flex items-center gap-2 text-sm font-bold"><Building2 size={16} /> Usaha tercatat</p><p className="text-muted mt-2 text-sm leading-6">{formatNumber.format(facilities.kios)} toko/kios · {formatNumber.format(facilities.usahaPeternakan)} unit peternakan · {formatNumber.format(facilities.usahaPerikanan)} unit perikanan</p></div>
+            <div className="rounded-2xl bg-slate-50/80 p-4 dark:bg-white/5"><p className="flex items-center gap-2 text-sm font-bold"><Route size={16} /> Jalan kelurahan</p><p className="text-muted mt-2 text-sm leading-6">{formatNumber.format(facilities.jalanAspalMeter)} m aspal · {formatNumber.format(facilities.jalanBetonMeter)} m beton/semen</p></div>
+            <div className="rounded-2xl bg-slate-50/80 p-4 dark:bg-white/5"><p className="flex items-center gap-2 text-sm font-bold"><Store size={16} /> Usaha tercatat</p><p className="text-muted mt-2 text-sm leading-6">{formatNumber.format(facilities.kios)} toko/kios · {formatNumber.format(facilities.usahaPeternakan)} unit peternakan · {formatNumber.format(facilities.usahaPerikanan)} unit perikanan</p></div>
           </div>
+          <p className="text-muted mt-4 text-[11px] italic leading-5">Sumber: bagian sarana dan prasarana dalam <em>Daftar Isian Potensi Desa dan Kelurahan Taratara Tiga</em>, Desember {PROFIL_2024.tahun}.</p>
         </article>
       </section>
 
-      <section aria-label="Sejarah kelurahan" className={`${cardStyle} mt-6`}>
+      <section aria-label="Catatan sumber data" className={`${cardStyle} mt-6`}>
         <p className="text-xs font-bold uppercase tracking-[.15em] text-[var(--primary)]">Sumber data</p>
-        <p className="mt-2 text-sm leading-7">Diolah dari <em>Daftar Isian Potensi Desa dan Kelurahan Taratara Tiga</em>, Desember {PROFIL_2024.tahun}. Data kependudukan, wilayah, mata pencaharian, dan fasilitas pada halaman ini mengikuti dokumen tersebut. Beberapa isian yang kosong atau tidak terbaca tidak ditampilkan.</p>
+        <p className="text-muted mt-2 text-sm italic leading-7">Data kependudukan, wilayah, mata pencaharian, dan fasilitas diolah dari <em>Daftar Isian Potensi Desa dan Kelurahan Taratara Tiga</em>, Desember {PROFIL_2024.tahun}. Isian yang kosong atau tidak terbaca tidak ditampilkan.</p>
       </section>
     </main>
   );

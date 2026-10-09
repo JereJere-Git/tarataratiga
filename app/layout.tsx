@@ -19,7 +19,6 @@ export const viewport: Viewport = {
   themeColor: "#15803D",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1, // Mencegah auto-zoom di iPhone saat klik form
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

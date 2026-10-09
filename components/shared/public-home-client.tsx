@@ -3,18 +3,19 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { ArrowRight, ChevronRight, Clock3, MapPin, MessageCircle, Phone, ShieldCheck, History, Sprout, RotateCcw, ListChecks } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, CalendarDays, ChevronRight, MapPin, MessageCircle, Phone, ShieldCheck, History, Sprout, RotateCcw, ListChecks, Play, Video } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { GlassButton, GlassCard, GlassChip } from "@/components/shared/glass";
 import { Reveal } from "@/components/shared/reveal";
 import { Container, SectionHeading } from "@/components/shared/layout";
 import { FasilitasSection } from "@/components/shared/fasilitas-section";
 import { waLink } from "@/lib/whatsapp";
-import { ringkasJam } from "@/lib/jam";
+import { HARI, jamTampilanPublik } from "@/lib/jam";
 import { GalleryClient } from "@/app/(public)/galeri/gallery-client";
 import { PotentialChart } from "@/components/shared/potential-chart";
 import { PROFIL_2024 } from "@/lib/profil-2024";
+import { NOMOR_KONTAK_SEMENTARA } from "@/lib/contact";
 
 type Profile = {
   sambutan: string | null; alamat: string | null; telepon: string | null; whatsapp: string | null; email: string | null;
@@ -73,11 +74,19 @@ const EN_DAY: Record<string, number> = { sunday: 0, monday: 1, tuesday: 2, wedne
 function officeStatus(profile: Profile | null) {
   if (!profile) return { open: false, label: "Informasi jam pelayanan belum tersedia" };
   const now = new Date();
-  const tz = profile.zona_waktu;
-  const today = EN_DAY[new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: tz }).format(now).toLowerCase()] ?? 1;
-  const time = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: tz }).format(now);
+  let today = 1;
+  let time = "00:00";
+  try {
+    const timeZone = profile.zona_waktu || "Asia/Makassar";
+    today = EN_DAY[new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone }).format(now).toLowerCase()] ?? 1;
+    time = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone }).format(now);
+  } catch {
+    const fallbackTimeZone = "Asia/Makassar";
+    today = EN_DAY[new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: fallbackTimeZone }).format(now).toLowerCase()] ?? 1;
+    time = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: fallbackTimeZone }).format(now);
+  }
   const hoursOf = (index: number) => {
-    const entry = profile.jam_pelayanan?.[DAY_KEYS[index % 7]];
+    const entry = jamTampilanPublik(profile.jam_pelayanan)[DAY_KEYS[index % 7]];
     return entry?.buka && entry?.tutup ? entry : null;
   };
   const todayHours = hoursOf(today);
@@ -94,19 +103,26 @@ function officeStatus(profile: Profile | null) {
 }
 
 export function PublicHomeClient({ data }: { data: PublicHomeData }) {
-  const status = officeStatus(data.profile);
-  const wa = waLink(data.profile?.whatsapp, "Halo Kelurahan Taratara Tiga, saya ingin bertanya/menyampaikan: ");
+  const [status, setStatus] = useState<{ open: boolean; label: string } | null>(null);
+  useEffect(() => {
+    const updateStatus = () => setStatus(officeStatus(data.profile));
+    updateStatus();
+    const interval = window.setInterval(updateStatus, 60_000);
+    return () => window.clearInterval(interval);
+  }, [data.profile]);
+  const wa = waLink(data.profile?.whatsapp || NOMOR_KONTAK_SEMENTARA, "Halo Kelurahan Taratara Tiga, saya ingin bertanya/menyampaikan: ");
   const aspirationTemplate = "ASPIRASI WARGA — KELURAHAN TARATARA TIGA\n\nNama: [Nama lengkap]\nLingkungan: [I–VII]\nTopik: [Topik aspirasi]\n\nIsi aspirasi: [Tuliskan saran, kebutuhan, atau masukan Anda]\nHarapan: [Hasil yang diharapkan]";
-  const aspirationWa = waLink(data.profile?.whatsapp, aspirationTemplate);
-  const phone = data.profile?.telepon?.replace(/[^\d+]/g, "") ?? "";
+  const aspirationWa = waLink(data.profile?.whatsapp || NOMOR_KONTAK_SEMENTARA, aspirationTemplate);
+  const introVideoUrl = process.env.NEXT_PUBLIC_VIDEO_PENGENALAN_URL?.trim();
+  const youtubeId = introVideoUrl?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/)?.[1];
 
   return <main className="pb-28 pt-20 md:pb-10">
     <Container>
       <section id="beranda" className="grid items-center gap-10 py-14 md:grid-cols-[1.08fr_.92fr] md:py-24">
         <Reveal>
-          <GlassChip className={status.open ? "text-emerald-700 dark:text-emerald-300" : "text-slate-600 dark:text-slate-300"}>
-            <span className={`mr-2 inline-block h-2 w-2 rounded-full ${status.open ? "bg-emerald-500" : "bg-slate-400"}`} />
-            {status.open ? "Buka sekarang" : "Tutup"} · {status.label}
+          <GlassChip className={status?.open ? "text-emerald-700 dark:text-emerald-300" : "text-slate-600 dark:text-slate-300"}>
+            <span className={`mr-2 inline-block h-2 w-2 rounded-full ${status?.open ? "status-live-dot bg-emerald-500" : "bg-slate-400"}`} />
+            {status ? `${status.open ? "Buka sekarang" : "Tutup"} · ${status.label}` : "Jam pelayanan kelurahan"}
           </GlassChip>
           <h1 className="mt-6 max-w-3xl text-5xl font-extrabold leading-[1.05] tracking-[-.06em] sm:text-[60px]">Melayani warga, <span className="text-[var(--primary)]">dengan hati.</span></h1>
           <p className="text-muted mt-6 max-w-xl text-base leading-8 sm:text-lg">{data.profile?.sambutan ?? "Portal resmi Kelurahan Taratara Tiga, Kecamatan Tomohon Barat."}</p>
@@ -117,7 +133,7 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
               : <Link href="/kontak"><GlassButton variant="secondary">Hubungi Kami</GlassButton></Link>}
           </div>
         </Reveal>
-        <Reveal delay={.1} className="group relative min-h-[360px] overflow-hidden rounded-[32px] shadow-2xl shadow-[var(--primary)]/20 transition duration-500 hover:-translate-y-1 hover:shadow-[0_32px_70px_rgba(15,75,53,.3)]">
+        <Reveal delay={.1} className="group relative min-h-[360px] overflow-hidden rounded-[32px] shadow-2xl shadow-[var(--primary)]/20 transition-shadow duration-500 hover:shadow-[0_32px_70px_rgba(15,75,53,.3)]">
           <Image src="/bg/hero.jpeg" alt="Pemandangan alam dan persawahan di sekitar Tomohon" fill priority sizes="(max-width: 768px) 100vw, 42vw" className="object-cover object-center transition-transform duration-700 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0f1f17]/85 via-[#0f1f17]/15 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 text-white">
@@ -125,6 +141,46 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
             <p className="max-w-sm text-2xl font-bold drop-shadow-md">Informasi kelurahan yang dekat dengan warga.</p>
           </div>
         </Reveal>
+      </section>
+
+      <Reveal id="video-pengenalan" className="scroll-mt-28 pb-10">
+        <section aria-labelledby="video-pengenalan-title" className="relative isolate overflow-hidden rounded-[32px] border border-white/70 bg-gradient-to-br from-emerald-100/80 via-white/75 to-cyan-100/80 p-5 shadow-[0_24px_70px_rgba(15,75,53,.12)] dark:border-white/10 dark:from-emerald-950/60 dark:via-[#0a2d26]/80 dark:to-cyan-950/40 sm:p-8 lg:p-10">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-28 -z-10 h-72 w-72 rounded-full bg-emerald-300/30 blur-3xl" />
+          <div className="grid items-center gap-7 lg:grid-cols-[.78fr_1.22fr] lg:gap-10">
+            <div className="max-w-lg">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/65 px-3 py-1.5 text-xs font-bold uppercase tracking-[.14em] text-[var(--primary)] dark:bg-white/5"><Video size={14} /> Cerita dari Taratara Tiga</span>
+              <h2 id="video-pengenalan-title" className="mt-4 text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-4xl">Kenali Taratara Tiga, lebih dekat.</h2>
+              <p className="text-muted mt-3 text-sm leading-7 sm:text-base">Lihat kehidupan warga, potensi wilayah, dan semangat kebersamaan yang membuat Taratara Tiga istimewa.</p>
+              <p className="text-muted mt-5 flex items-center gap-2 text-xs font-semibold"><span className="h-2 w-2 rounded-full bg-[var(--primary)]" /> Video pengenalan kelurahan</p>
+            </div>
+            <div className="group relative aspect-video min-h-[200px] overflow-hidden rounded-[24px] border border-white/60 bg-[#092c25] shadow-[0_18px_50px_rgba(4,60,43,.2)] sm:rounded-[28px]">
+              {youtubeId ? <iframe className="absolute inset-0 h-full w-full" src={`https://www.youtube-nocookie.com/embed/${youtubeId}`} title="Video pengenalan Kelurahan Taratara Tiga" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /> : introVideoUrl ? <video className="absolute inset-0 h-full w-full object-cover" controls playsInline preload="metadata" poster="/bg/hero.jpeg"><source src={introVideoUrl} type={/\.webm(?:\?|$)/i.test(introVideoUrl) ? "video/webm" : "video/mp4"} />Browser Anda tidak mendukung pemutar video.</video> : <>
+                <Image src="/bg/hero.jpeg" alt="Pemandangan alam di sekitar Taratara Tiga" fill sizes="(max-width: 1024px) 100vw, 58vw" className="object-cover opacity-75 transition duration-700 group-hover:scale-[1.025] group-hover:opacity-90" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#06291f]/75 via-[#06291f]/25 to-transparent" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-5 text-center text-white">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full border border-white/50 bg-white/20 shadow-[0_0_0_10px_rgba(255,255,255,.1)] backdrop-blur-md sm:h-[76px] sm:w-[76px]"><Play size={27} fill="currentColor" className="ml-1" /></span>
+                  <span className="rounded-full border border-white/25 bg-black/20 px-3 py-1 text-xs font-bold tracking-wide backdrop-blur-md">RUANG VIDEO PENGENALAN</span>
+                  <span className="text-xs text-white/85">Tambahkan tautan video melalui <code className="rounded bg-black/25 px-1.5 py-0.5">NEXT_PUBLIC_VIDEO_PENGENALAN_URL</code></span>
+                </div>
+              </>}
+            </div>
+          </div>
+        </section>
+      </Reveal>
+
+      <section aria-labelledby="jadwal-kantor" className="-mt-5 mb-8 scroll-mt-28">
+        <GlassCard className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div>
+            <div className="flex items-center gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)]"><CalendarDays size={19} /></span><div><p className="text-xs font-bold uppercase tracking-[.14em] text-[var(--accent)]">Informasi pelayanan</p><h2 id="jadwal-kantor" className="text-lg font-extrabold sm:text-xl">Jadwal buka kantor</h2></div></div>
+            <dl className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+              {HARI.map(([key, label]) => {
+                const hours = jamTampilanPublik(data.profile?.jam_pelayanan)[key];
+                return <div key={key} className="rounded-xl border border-[var(--line)] bg-white/45 px-3 py-2 dark:bg-white/[.04]"><dt className="text-xs font-semibold">{label}</dt><dd className="text-muted mt-0.5 text-xs">{hours?.buka && hours?.tutup ? `${hours.buka}–${hours.tutup}` : "Tutup"}</dd></div>;
+              })}
+            </dl>
+          </div>
+          <Link href="/kontak" className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[var(--line)] bg-white/60 px-4 text-sm font-bold text-[var(--primary)] transition-colors hover:bg-[var(--primary-soft)] lg:self-center">Kontak kami<ArrowRight size={16} /></Link>
+        </GlassCard>
       </section>
 
       <Reveal id="profil" className="scroll-mt-28 py-12">
@@ -135,7 +191,7 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
               <p className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[.15em] text-[var(--primary)]"><Sprout size={14} /> Kelurahan di kaki gunung</p>
               <h2 className="mt-4 text-4xl font-extrabold leading-tight tracking-[-.04em] sm:text-5xl">Mengenal Taratara Tiga</h2>
               <p className="text-muted mt-4 text-base leading-7 sm:text-lg sm:leading-8">Di Kecamatan Tomohon Barat, kehidupan warga tumbuh bersama sawah, kebun, dan semangat <em>mapalus</em>. Taratara Tiga merupakan bagian dari kawasan Taratara yang dikelilingi Gunung Lokon, Kasehe, dan Tatawiran.</p>
-              <div className="mt-6 max-w-md rounded-2xl border border-[var(--line)] bg-white/55 p-4 dark:bg-white/5"><p className="text-sm font-bold uppercase tracking-[.12em] text-[var(--primary)]">Lurah saat ini</p><p className="mt-1 text-lg font-extrabold sm:text-xl">Rommy N. Loho, SH</p><p className="text-muted mt-1 text-sm leading-6">Menjabat sejak 2021 · berdasarkan dokumen sejarah</p></div>
+              <div className="mt-6 max-w-md rounded-2xl border border-[var(--line)] bg-white/55 p-4 dark:bg-white/5"><p className="text-sm font-bold uppercase tracking-[.12em] text-[var(--primary)]">Lurah saat ini</p><p className="mt-1 text-lg font-extrabold sm:text-xl">Rommy N. Loho, SH</p><p className="text-muted mt-1 text-sm leading-6">Menjabat sejak 2021</p></div>
               <div className="mt-7 flex flex-wrap gap-5 text-sm font-bold">
                 <Link href="/profil" className="group inline-flex min-h-11 items-center gap-1 text-[var(--primary)]">Baca profil lengkap <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" /></Link>
                 <Link href="/peta" className="group inline-flex min-h-11 items-center gap-1 text-[var(--primary)]">Lihat peta <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" /></Link>
@@ -158,24 +214,25 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
                 ["1978", "Taratara dimekarkan", "Wilayah Taratara dibagi menjadi Taratara Satu dan Taratara Dua."],
                 ["2004", "Menjadi kelurahan", "Seiring pembentukan Kota Tomohon, desa Taratara Satu dan Dua beralih menjadi kelurahan."],
                 ["7 Sep 2009", "Taratara Tiga berdiri", "Kelurahan Taratara Tiga dimekarkan dari Kelurahan Taratara Dua berdasarkan Perda Kota Tomohon No. 12 Tahun 2009."],
-              ].map(([year, title, description]) => <article key={year} className="group relative rounded-2xl border border-[var(--line)] bg-white/55 p-4 transition duration-300 hover:-translate-y-1 hover:border-[var(--primary)]/30 hover:bg-white/85 hover:shadow-lg dark:bg-white/5 dark:hover:bg-white/10">
+              ].map(([year, title, description]) => <article key={year} className="group relative rounded-2xl border border-[var(--line)] bg-white/55 p-4 transition-[border-color,background-color,box-shadow] duration-300 hover:border-[var(--primary)]/30 hover:bg-white/85 hover:shadow-lg dark:bg-white/5 dark:hover:bg-white/10">
                 <p className="text-sm font-extrabold text-[var(--primary)]">{year}</p><h4 className="mt-1 text-base font-extrabold">{title}</h4><p className="text-muted mt-2 text-sm leading-6">{description}</p>
               </article>)}
             </div>
           </div>
         </div>
+        <p className="text-muted mt-3 px-1 text-xs italic leading-5">Sumber: <em>Daftar Isian Potensi Desa dan Kelurahan Taratara Tiga</em> (Desember 2024) untuk data wilayah dan kependudukan; <em>Sejarah Taratara.docx</em> untuk kronologi dan riwayat kepemimpinan.</p>
       </Reveal>
 
       <Reveal id="potensi" className="scroll-mt-28 py-10">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <SectionHeading eyebrow="Potensi wilayah" title="Alam dan hasil bumi Taratara Tiga" description="Luas lahan dan tanaman pangan berdasarkan profil kelurahan tahun 2024." />
+          <SectionHeading eyebrow="Potensi wilayah" title="Alam dan hasil bumi Taratara Tiga" description="Jelajahi penggunaan lahan dan tanaman pangan Taratara Tiga." />
           <Link href="/statistik" className="focus-ring inline-flex min-h-11 items-center gap-2 self-start rounded-full border border-[var(--line)] bg-white/60 px-4 text-sm font-bold text-[var(--primary)] transition-colors hover:bg-[var(--primary-soft)] sm:shrink-0 sm:self-end">Lihat selengkapnya<ArrowRight size={16} /></Link>
         </div>
         <div className="mt-6"><PotentialChart /></div>
       </Reveal>
 
       <Reveal id="galeri" className="scroll-mt-28 py-10">
-        <div className="mb-6 flex items-end justify-between gap-3"><SectionHeading eyebrow="Dokumentasi" title="Galeri kegiatan" description="Momen pelayanan dan kegiatan warga." /><Link href="/galeri" className="shrink-0 text-sm font-bold text-[var(--primary)]">Semua foto <ArrowRight size={15} className="inline" /></Link></div>
+        <div className="mb-6 flex items-end justify-between gap-3"><SectionHeading eyebrow="Dokumentasi" title="Galeri" description="Momen pelayanan dan kegiatan warga." /><Link href="/galeri" className="shrink-0 text-sm font-bold text-[var(--primary)]">Semua foto <ArrowRight size={15} className="inline" /></Link></div>
         {data.gallery.length ? <GalleryClient items={data.gallery.slice(0, 9)} /> : <EmptyState title="Galeri segera hadir" description="Dokumentasi kegiatan warga akan ditampilkan di sini." />}
       </Reveal>
 
@@ -201,7 +258,6 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
             <ol className="mt-5 space-y-4">
               {[["01", "Lengkapi format", "Isi nama, lingkungan, topik, dan aspirasi dengan jelas."], ["02", "Periksa pesan", "Tombol WhatsApp akan membuka pesan template yang bisa Anda lengkapi."], ["03", "Kirim ke kelurahan", "Tekan tombol kirim di WhatsApp. Petugas akan menindaklanjuti pada jam pelayanan."]].map(([number, title, detail]) => <li key={number} className="flex gap-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--primary)]/10 text-xs font-extrabold text-[var(--primary)]">{number}</span><span><strong className="text-sm">{title}</strong><span className="text-muted mt-0.5 block text-sm leading-5">{detail}</span></span></li>)}
             </ol>
-            <div className="text-muted mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-[var(--line)] pt-4 text-xs">{data.profile?.alamat && <span className="inline-flex items-center gap-1.5"><MapPin size={13} />{data.profile.alamat}</span>}<span className="inline-flex items-center gap-1.5"><Clock3 size={13} />{ringkasJam(data.profile?.jam_pelayanan)}</span>{phone && <a href={`tel:${phone}`} className="inline-flex items-center gap-1.5"><Phone size={13} />{data.profile?.telepon}</a>}</div>
           </GlassCard>
           <GlassCard className="p-6 sm:p-8">
             <p className="text-xs font-bold uppercase tracking-[.15em] text-[var(--primary)]">Template pesan</p>
@@ -216,6 +272,7 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
   </main>;
 }
 
-export function Footer({ profile }: { profile: (Pick<Profile, "alamat" | "telepon"> & { jam_pelayanan?: Profile["jam_pelayanan"] }) | null }) {
-  return <footer id="kontak" className="scroll-mt-28 px-4 pb-24 sm:px-8 md:pb-8"><div className="glass-strong mx-auto grid w-full max-w-7xl gap-4 rounded-[24px] p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6"><div><p className="font-extrabold">Kelurahan Taratara Tiga</p><p className="text-muted mt-1 flex items-start gap-2 text-xs"><MapPin size={13} className="mt-0.5 shrink-0" /><span>{profile?.alamat ?? "Tomohon Barat, Tomohon"}</span></p></div><div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs font-semibold text-muted sm:flex sm:flex-wrap sm:justify-end sm:gap-4"><span className="flex items-center gap-1"><Phone size={13} />{profile?.telepon ?? "-"}</span><span className="flex items-center gap-1"><Clock3 size={13} />{ringkasJam(profile?.jam_pelayanan)}</span><Link href="/#profil" className="text-[var(--primary)]">Profil</Link><Link href="/#layanan" className="text-[var(--primary)]">Layanan</Link><Link href="/#potensi" className="text-[var(--primary)]">Potensi</Link><Link href="/#galeri" className="text-[var(--primary)]">Galeri</Link><Link href="/umkm" className="text-[var(--primary)]">UMKM</Link><Link href="/#hubungi" className="text-[var(--primary)]">Kontak</Link></div></div></footer>;
+export function Footer({ profile }: { profile: Pick<Profile, "alamat" | "telepon"> | null }) {
+  const phone = profile?.telepon || NOMOR_KONTAK_SEMENTARA;
+  return <footer id="kontak" className="scroll-mt-28 px-4 pb-24 sm:px-8 md:pb-8"><div className="glass-strong mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-5 rounded-[24px] p-5 sm:p-6"><div className="min-w-[180px]"><p className="font-extrabold">Kelurahan Taratara Tiga</p><p className="text-muted mt-1 flex items-center gap-2 text-xs"><MapPin size={13} className="shrink-0" /><span>{profile?.alamat ?? "Tomohon Barat, Kota Tomohon"}</span></p></div><div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-xs font-semibold"><a className="text-muted inline-flex items-center gap-1.5" href={`tel:${phone.replace(/[^\d+]/g, "")}`}><Phone size={13} />{phone}</a><Link href="/kontak" className="font-bold text-[var(--primary)]">Informasi kontak<ArrowRight className="ml-1 inline" size={13} /></Link><nav aria-label="Navigasi footer" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[var(--primary)]"><Link href="/#profil">Profil</Link><Link href="/#layanan">Layanan</Link><Link href="/#potensi">Potensi</Link><Link href="/#galeri">Galeri</Link><Link href="/umkm">UMKM</Link><Link href="/kontak">Kontak</Link></nav></div></div></footer>;
 }
