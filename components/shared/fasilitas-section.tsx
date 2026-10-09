@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
-import { Church, GraduationCap, HeartPulse, Landmark, MapPin, Store } from "lucide-react";
+import { Building2, Church, GraduationCap, HeartPulse, Landmark, MapPin, Store } from "lucide-react";
 import { Reveal } from "@/components/shared/reveal";
 import { SectionHeading } from "@/components/shared/layout";
 import { KATEGORI, fasilitas, mapsUrl, type Fasilitas, type Kategori } from "@/lib/fasilitas";
@@ -13,6 +13,7 @@ const ICONS: Record<Kategori, ReactNode> = {
   ekonomi: <Store size={30} />,
   ibadah: <Church size={30} />,
   pendidikan: <GraduationCap size={30} />,
+  lainnya: <Building2 size={30} />,
 };
 
 const FILTERS: ("semua" | Kategori)[] = ["semua", ...(Object.keys(KATEGORI) as Kategori[])];

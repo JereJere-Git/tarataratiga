@@ -2,6 +2,7 @@ import { Container, SectionHeading } from "@/components/shared/layout";
 import { EmptyState } from "@/components/shared/empty-state";
 import { createClient } from "@/lib/supabase/server";
 import { MapClient, type MapLocation, type OfficeLocation } from "./map-client";
+import { fasilitas, mapsUrl } from "@/lib/fasilitas";
 
 export default async function MapPage() {
   const supabase = await createClient();
@@ -15,7 +16,10 @@ export default async function MapPage() {
     supabase.from("profil_kelurahan").select("alamat, telepon, lat, lng").maybeSingle(),
   ]);
 
-  const validLocations = (locations ?? []).filter(
+  const listedLocations = (locations ?? []).filter((location) =>
+    !(location.kategori === "lainnya" && location.nama.toLowerCase().includes("kantor kelurahan")),
+  );
+  const validLocations = listedLocations.filter(
     (location): location is MapLocation =>
       typeof location.lat === "number" && typeof location.lng === "number",
   );
@@ -29,6 +33,17 @@ export default async function MapPage() {
           lng: profile.lng,
         }
       : null;
+  const facilityLocations = fasilitas.map((facility, index) => ({
+    id: `fasilitas-${facility.nama.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+    nama: facility.nama,
+    kategori: facility.kategori,
+    alamat: "Taratara Tiga, Tomohon Barat",
+    deskripsi: facility.deskripsi,
+    telepon: null,
+    jam_operasional: null,
+    urutan: index,
+    maps_url: mapsUrl(facility),
+  }));
 
   return (
     <main className="pb-28 pt-28">
@@ -36,11 +51,11 @@ export default async function MapPage() {
         <SectionHeading
           eyebrow="Informasi warga"
           title="Peta lokasi penting"
-          description="Temukan tempat penting di sekitar Kelurahan Taratara Tiga dan rencanakan perjalanan Anda."
+          description="Cari nama atau alamat, saring berdasarkan kategori, lalu pilih titik untuk melihat detail dan petunjuk arah."
         />
         <div className="mt-8">
-          {validLocations.length || office ? (
-            <MapClient locations={validLocations} office={office} missingCount={(locations ?? []).length - validLocations.length} />
+          {validLocations.length || office || facilityLocations.length ? (
+            <MapClient locations={validLocations} facilities={facilityLocations} office={office} missingCount={listedLocations.length - validLocations.length} />
           ) : (
             <EmptyState
               title="Belum ada lokasi berkoordinat"

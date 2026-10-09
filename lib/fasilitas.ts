@@ -1,4 +1,4 @@
-export type Kategori = "pemerintahan" | "kesehatan" | "ekonomi" | "ibadah" | "pendidikan";
+export type Kategori = "pemerintahan" | "kesehatan" | "ekonomi" | "ibadah" | "pendidikan" | "lainnya";
 
 export type Fasilitas = {
   nama: string;
@@ -18,7 +18,7 @@ export const KATEGORI: Record<Kategori, string> = {
   ekonomi: "Ekonomi & Pertanian",
   ibadah: "Ibadah",
   pendidikan: "Pendidikan",
-  lainnya: " ",
+  lainnya: "Lainnya",
 };
 
 export function mapsUrl(item: Fasilitas): string | null {
