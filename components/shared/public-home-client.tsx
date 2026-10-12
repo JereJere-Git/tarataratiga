@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { ArrowRight, CalendarDays, ChevronRight, MapPin, MessageCircle, Phone, ShieldCheck, History, Sprout, RotateCcw, ListChecks, Play, Video } from "lucide-react";
+import { ArrowRight, CalendarDays, MapPin, MessageCircle, Phone, ShieldCheck, History, Sprout, RotateCcw, ListChecks, Play, Video } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { GlassButton, GlassCard, GlassChip } from "@/components/shared/glass";
 import { Reveal } from "@/components/shared/reveal";
@@ -16,6 +16,7 @@ import { GalleryClient } from "@/app/(public)/galeri/gallery-client";
 import { PotentialChart } from "@/components/shared/potential-chart";
 import { PROFIL_2024 } from "@/lib/profil-2024";
 import { NOMOR_KONTAK_SEMENTARA } from "@/lib/contact";
+import { OfficeCalendar } from "@/components/shared/office-calendar";
 
 type Profile = {
   sambutan: string | null; alamat: string | null; telepon: string | null; whatsapp: string | null; email: string | null;
@@ -61,7 +62,6 @@ function ServiceFlipCard({ item }: { item: PublicHomeData["layanan"][number] }) 
             <div><h4 className="text-xs font-extrabold">Persyaratan</h4>{requirements.length ? <ul className="text-muted mt-1.5 list-inside list-disc space-y-1 text-xs leading-5">{requirements.slice(0, 5).map((requirement, index) => <li key={`${requirement}-${index}`}>{requirement}</li>)}</ul> : <p className="text-muted mt-1.5 text-xs leading-5">Persyaratan belum dicantumkan.</p>}</div>
             <div><h4 className="text-xs font-extrabold">Langkah pengurusan</h4>{steps.length ? <ol className="text-muted mt-1.5 list-inside list-decimal space-y-1 text-xs leading-5">{steps.slice(0, 4).map((step, index) => <li key={`${step}-${index}`}>{step}</li>)}</ol> : <p className="text-muted mt-1.5 text-xs leading-5">Langkah pengurusan belum dicantumkan.</p>}</div>
           </div>
-          <div className="mt-3 flex items-center justify-between gap-2 border-t border-[var(--line)] pt-3"><span className="text-muted text-[10px]">Detail lengkap</span><Link href={`/layanan/${item.slug}`} className="focus-ring inline-flex min-h-9 items-center gap-1 rounded-full px-3 text-xs font-bold text-[var(--primary)]">Buka<ChevronRight size={14} /></Link></div>
         </GlassCard>
       </section>
     </motion.div>
@@ -178,6 +178,9 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
                 return <div key={key} className="rounded-xl border border-[var(--line)] bg-white/45 px-3 py-2 dark:bg-white/[.04]"><dt className="text-xs font-semibold">{label}</dt><dd className="text-muted mt-0.5 text-xs">{hours?.buka && hours?.tutup ? `${hours.buka}–${hours.tutup}` : "Tutup"}</dd></div>;
               })}
             </dl>
+            <div className="mt-5 border-t border-[var(--line)] pt-5">
+              <OfficeCalendar schedule={jamTampilanPublik(data.profile?.jam_pelayanan)} />
+            </div>
           </div>
           <Link href="/kontak" className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[var(--line)] bg-white/60 px-4 text-sm font-bold text-[var(--primary)] transition-colors hover:bg-[var(--primary-soft)] lg:self-center">Kontak kami<ArrowRight size={16} /></Link>
         </GlassCard>

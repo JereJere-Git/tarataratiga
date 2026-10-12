@@ -12,7 +12,7 @@ values (
   '(0431) 000000',
   '6281200000000',
   'kelurahan.taratara3@example.go.id',
-  '{"senin":{"buka":"08:00","tutup":"16:00"},"selasa":{"buka":"08:00","tutup":"16:00"},"rabu":{"buka":"08:00","tutup":"16:00"},"kamis":{"buka":"08:00","tutup":"16:00"},"jumat":{"buka":"08:00","tutup":"15:00"}}'::jsonb,
+  '{"senin":{"buka":"08:00","tutup":"16:00"},"selasa":{"buka":"08:00","tutup":"16:00"},"rabu":{"buka":"08:00","tutup":"16:00"},"kamis":{"buka":"08:00","tutup":"16:00"},"jumat":{"buka":"08:00","tutup":"13:30"}}'::jsonb,
   'Asia/Makassar',
   1.316700,
   124.833300,
@@ -41,7 +41,7 @@ insert into public.layanan (id, nama, slug, ringkasan, syarat, alur, biaya, esti
 values
   ('00000000-0000-4000-8000-000000000101', 'Surat Keterangan Domisili', 'surat-keterangan-domisili', 'Pengajuan surat keterangan domisili warga.', '["KTP","Kartu Keluarga"]'::jsonb, '["Isi formulir","Verifikasi berkas","Surat diterbitkan"]'::jsonb, 'Gratis', '1 hari kerja', 1, true),
   ('00000000-0000-4000-8000-000000000102', 'Surat Pengantar', 'surat-pengantar', 'Layanan surat pengantar untuk kebutuhan administrasi warga.', '["KTP","Kartu Keluarga"]'::jsonb, '["Ajukan ke kelurahan","Validasi data","Surat ditandatangani"]'::jsonb, 'Gratis', '1 hari kerja', 2, true),
-  ('00000000-0000-4000-8000-000000000103', 'Legalisasi Dokumen', 'legalisasi-dokumen', 'Legalisasi dokumen administrasi sesuai ketentuan.', '["Dokumen asli","Fotokopi dokumen","KTP"]'::jsonb, '["Serahkan dokumen","Pemeriksaan","Dokumen selesai"]'::jsonb, 'Gratis', '1 hari kerja', 3, true)
+  ('00000000-0000-4000-8000-000000000103', 'Legalisasi Dokumen', 'legalisasi-dokumen', 'Legalisasi dokumen administrasi sesuai ketentuan.', '["Dokumen asli","Fotokopi dokumen","KTP"]'::jsonb, '["Serahkan dokumen","Pemeriksaan","Dokumen selesai"]'::jsonb, 'Gratis', '1 hari kerja', 3, false)
 on conflict (id) do update set
   nama = excluded.nama,
   slug = excluded.slug,

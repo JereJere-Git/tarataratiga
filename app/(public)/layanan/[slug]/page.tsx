@@ -7,6 +7,7 @@ import { ServiceChecklist } from "@/components/shared/public-interactions";
 
 export default async function LayananDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (slug === "legalisasi-dokumen") notFound();
   const supabase = await createClient();
   const { data } = await supabase.from("layanan").select("nama, ringkasan, syarat, alur, biaya, estimasi_waktu").eq("slug", slug).eq("aktif", true).maybeSingle();
   if (!data) notFound();
