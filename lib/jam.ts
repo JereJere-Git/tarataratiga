@@ -8,11 +8,11 @@ export const HARI = [
 
 const fmt = (value: string) => value.replace(":", ".");
 
-/** Jadwal publik hari Sabtu ditutup pukul 14.00 sesuai ketentuan kelurahan. */
+/** Jadwal publik hari Sabtu ditutup. */
 export function jamTampilanPublik(jam: JadwalPelayanan | null | undefined): JadwalPelayanan {
   return {
     ...jam,
-    sabtu: { buka: jam?.sabtu?.buka ?? "08:00", tutup: "14:00" },
+    sabtu: {},
   };
 }
 

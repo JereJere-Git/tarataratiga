@@ -143,24 +143,24 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
         </Reveal>
       </section>
 
-      <Reveal id="video-pengenalan" className="scroll-mt-28 pb-10">
-        <section aria-labelledby="video-pengenalan-title" className="relative isolate overflow-hidden rounded-[32px] border border-white/70 bg-gradient-to-br from-emerald-100/80 via-white/75 to-cyan-100/80 p-5 shadow-[0_24px_70px_rgba(15,75,53,.12)] dark:border-white/10 dark:from-emerald-950/60 dark:via-[#0a2d26]/80 dark:to-cyan-950/40 sm:p-8 lg:p-10">
+      <Reveal id="video-pengenalan" className="scroll-mt-28 pb-10 pt-4 sm:pt-0">
+        <section aria-labelledby="video-pengenalan-title" className="relative isolate overflow-hidden rounded-[28px] border border-white/70 bg-gradient-to-br from-emerald-100/80 via-white/75 to-cyan-100/80 p-4 shadow-[0_24px_70px_rgba(15,75,53,.12)] dark:border-white/10 dark:from-emerald-950/60 dark:via-[#0a2d26]/80 dark:to-cyan-950/40 sm:rounded-[32px] sm:p-8 lg:p-10">
           <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-28 -z-10 h-72 w-72 rounded-full bg-emerald-300/30 blur-3xl" />
           <div className="grid items-center gap-7 lg:grid-cols-[.78fr_1.22fr] lg:gap-10">
             <div className="max-w-lg">
               <span className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/65 px-3 py-1.5 text-xs font-bold uppercase tracking-[.14em] text-[var(--primary)] dark:bg-white/5"><Video size={14} /> Cerita dari Taratara Tiga</span>
-              <h2 id="video-pengenalan-title" className="mt-4 text-3xl font-extrabold leading-tight tracking-[-.04em] sm:text-4xl">Kenali Taratara Tiga, lebih dekat.</h2>
-              <p className="text-muted mt-3 text-sm leading-7 sm:text-base">Lihat kehidupan warga, potensi wilayah, dan semangat kebersamaan yang membuat Taratara Tiga istimewa.</p>
+              <h2 id="video-pengenalan-title" className="mt-4 max-w-lg text-2xl font-extrabold leading-tight tracking-[-.04em] sm:text-4xl">Kenali Taratara Tiga, lebih dekat.</h2>
+              <p className="text-muted mt-3 text-sm leading-6 sm:text-base sm:leading-7">Lihat kehidupan warga, potensi wilayah, dan semangat kebersamaan yang membuat Taratara Tiga istimewa.</p>
               <p className="text-muted mt-5 flex items-center gap-2 text-xs font-semibold"><span className="h-2 w-2 rounded-full bg-[var(--primary)]" /> Video pengenalan kelurahan</p>
             </div>
-            <div className="group relative aspect-video min-h-[200px] overflow-hidden rounded-[24px] border border-white/60 bg-[#092c25] shadow-[0_18px_50px_rgba(4,60,43,.2)] sm:rounded-[28px]">
+            <div className="group relative aspect-video min-h-[170px] overflow-hidden rounded-[20px] border border-white/60 bg-[#092c25] shadow-[0_18px_50px_rgba(4,60,43,.2)] sm:min-h-[240px] sm:rounded-[28px] lg:min-h-0">
               {youtubeId ? <iframe className="absolute inset-0 h-full w-full" src={`https://www.youtube-nocookie.com/embed/${youtubeId}`} title="Video pengenalan Kelurahan Taratara Tiga" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /> : introVideoUrl ? <video className="absolute inset-0 h-full w-full object-cover" controls playsInline preload="metadata" poster="/bg/hero.jpeg"><source src={introVideoUrl} type={/\.webm(?:\?|$)/i.test(introVideoUrl) ? "video/webm" : "video/mp4"} />Browser Anda tidak mendukung pemutar video.</video> : <>
                 <Image src="/bg/hero.jpeg" alt="Pemandangan alam di sekitar Taratara Tiga" fill sizes="(max-width: 1024px) 100vw, 58vw" className="object-cover opacity-75 transition duration-700 group-hover:scale-[1.025] group-hover:opacity-90" />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#06291f]/75 via-[#06291f]/25 to-transparent" />
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-5 text-center text-white">
                   <span className="flex h-16 w-16 items-center justify-center rounded-full border border-white/50 bg-white/20 shadow-[0_0_0_10px_rgba(255,255,255,.1)] backdrop-blur-md sm:h-[76px] sm:w-[76px]"><Play size={27} fill="currentColor" className="ml-1" /></span>
-                  <span className="rounded-full border border-white/25 bg-black/20 px-3 py-1 text-xs font-bold tracking-wide backdrop-blur-md">RUANG VIDEO PENGENALAN</span>
-                  <span className="text-xs text-white/85">Tambahkan tautan video melalui <code className="rounded bg-black/25 px-1.5 py-0.5">NEXT_PUBLIC_VIDEO_PENGENALAN_URL</code></span>
+                  <span className="rounded-full border border-white/25 bg-black/20 px-3 py-1 text-xs font-bold tracking-wide backdrop-blur-md">Video pengenalan</span>
+                  <span className="text-xs text-white/85">Video kelurahan segera hadir.</span>
                 </div>
               </>}
             </div>
@@ -199,7 +199,7 @@ export function PublicHomeClient({ data }: { data: PublicHomeData }) {
             </div>
             <div className="grid grid-cols-2 gap-3 self-start">
               <div className="min-h-[124px] rounded-3xl border border-[var(--line)] bg-white/60 p-4 text-[var(--foreground)] dark:bg-white/5 sm:p-5"><p className="text-sm font-semibold text-muted">Penduduk · 2024</p><p className="mt-2 text-2xl font-extrabold sm:text-3xl">{PROFIL_2024.penduduk.total.toLocaleString("id-ID")}</p><p className="text-sm text-muted">jiwa</p></div>
-              <div className="min-h-[124px] rounded-3xl border border-[var(--line)] bg-white/60 p-4 dark:bg-white/5 sm:p-5"><p className="text-sm font-semibold text-muted">Luas wilayah</p><p className="mt-2 text-2xl font-extrabold">{PROFIL_2024.wilayah.luasHa.toLocaleString("id-ID")}</p><p className="text-sm text-muted">hektare</p></div>
+              <div className="min-h-[124px] rounded-3xl border border-[var(--line)] bg-white/60 p-4 dark:bg-white/5 sm:p-5"><p className="text-sm font-semibold text-muted">Luas wilayah</p><p className="mt-2 text-2xl font-extrabold">{PROFIL_2024.wilayah.luasHa.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p><p className="text-sm text-muted">hektare</p></div>
               <div className="min-h-[124px] rounded-3xl border border-[var(--line)] bg-white/60 p-4 dark:bg-white/5 sm:p-5"><p className="text-sm font-semibold text-muted">Lingkungan</p><p className="mt-2 text-2xl font-extrabold">{PROFIL_2024.wilayah.lingkungan}</p><p className="text-sm text-muted">lingkungan</p></div>
               <div className="min-h-[124px] rounded-3xl border border-[var(--line)] bg-white/60 p-4 dark:bg-white/5 sm:p-5"><p className="text-sm font-semibold text-muted">Kepala keluarga</p><p className="mt-2 text-2xl font-extrabold">{PROFIL_2024.penduduk.keluarga.toLocaleString("id-ID")}</p><p className="text-sm text-muted">KK</p></div>
             </div>

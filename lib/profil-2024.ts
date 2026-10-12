@@ -3,7 +3,7 @@ export const PROFIL_2024 = {
   bulan: "Desember",
   penduduk: { total: 1610, lakiLaki: 833, perempuan: 777, keluarga: 483 },
   wilayah: {
-    luasHa: 743.21,
+    luasHa: 744.8,
     lingkungan: 7,
     penggunaan: [
       { nama: "Perkebunan", hektare: 382 },
@@ -15,7 +15,7 @@ export const PROFIL_2024 = {
       { nama: "Perkantoran", hektare: 0.1 },
       { nama: "Prasarana umum lainnya", hektare: 0.5 },
     ],
-    hutanProduksiTerbatasHa: 264.61,
+    hutanProduksiTerbatasHa: 286.2,
   },
   tanamanPangan: [
     { nama: "Padi sawah", hektare: 40 },

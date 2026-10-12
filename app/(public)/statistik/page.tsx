@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Building2, Droplets, ExternalLink, HeartPulse, Layers3, MapPinned, Ruler, Route, Sprout, Store, Users } from "lucide-react";
+import { Baby, Building2, Droplets, ExternalLink, Fish, HeartPulse, Hospital, Layers3, MapPinned, Ruler, Route, Sprout, Stethoscope, Store, Users, Warehouse } from "lucide-react";
 import { PROFIL_2024 } from "@/lib/profil-2024";
 import { PotentialChart } from "@/components/shared/potential-chart";
 
@@ -17,7 +17,7 @@ const maxGenderPercent = Math.max(malePercent, femalePercent);
 const cards = [
   { label: "Penduduk", value: formatNumber.format(PROFIL_2024.penduduk.total), unit: "jiwa", icon: Users },
   { label: "Kepala keluarga", value: formatNumber.format(PROFIL_2024.penduduk.keluarga), unit: "KK", icon: Building2 },
-  { label: "Luas wilayah", value: formatDecimal.format(PROFIL_2024.wilayah.luasHa), unit: "ha", icon: Ruler },
+  { label: "Luas wilayah", value: PROFIL_2024.wilayah.luasHa.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), unit: "ha", icon: Ruler },
   { label: "Lingkungan", value: formatNumber.format(PROFIL_2024.wilayah.lingkungan), unit: "lingkungan", icon: Layers3 },
 ];
 
@@ -139,28 +139,62 @@ export default function StatistikPage() {
           <p className="text-xs font-bold uppercase tracking-[.15em] text-[var(--primary)]">Sarana kelurahan</p>
           <h2 className="mt-1 text-xl font-extrabold">Fasilitas dan infrastruktur</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl bg-slate-50/80 p-4 dark:bg-white/5"><p className="flex items-center gap-2 text-sm font-bold"><HeartPulse size={16} /> Kesehatan</p><ul className="text-muted mt-2 list-disc space-y-1 pl-4 text-sm leading-6 marker:text-[var(--primary)]"><li>{facilities.puskesmasPembantu} Puskesmas Pembantu</li><li>{facilities.posyandu} Posyandu</li><li>{facilities.dokterUmum} dokter umum</li><li>{facilities.bidan} bidan</li><li>{facilities.perawat} perawat</li></ul></div>
-            <div className="rounded-2xl bg-slate-50/80 p-4 dark:bg-white/5"><p className="flex items-center gap-2 text-sm font-bold"><Droplets size={16} /> Air bersih</p><p className="text-muted mt-2 text-sm leading-6">{formatNumber.format(facilities.sumurPompa)} sumur pompa · {formatNumber.format(facilities.sumurGali)} sumur gali · {formatNumber.format(facilities.mataAir)} mata air</p></div>
-            <div className="rounded-2xl bg-slate-50/80 p-4 dark:bg-white/5"><p className="flex items-center gap-2 text-sm font-bold"><Route size={16} /> Jalan kelurahan</p><p className="text-muted mt-2 text-sm leading-6">{formatNumber.format(facilities.jalanAspalMeter)} m aspal · {formatNumber.format(facilities.jalanBetonMeter)} m beton/semen</p></div>
-            <div className="rounded-2xl bg-slate-50/80 p-4 dark:bg-white/5"><p className="flex items-center gap-2 text-sm font-bold"><Store size={16} /> Usaha tercatat</p><ul className="text-muted mt-2 list-disc space-y-1 pl-4 text-sm leading-6 marker:text-[var(--primary)]"><li>{formatNumber.format(facilities.kios)} toko/kios</li><li>{formatNumber.format(facilities.usahaPeternakan)} unit peternakan</li><li>{formatNumber.format(facilities.usahaPerikanan)} unit perikanan</li></ul></div>
-          </div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-[var(--line)] bg-white/55 p-4 dark:bg-white/[.03]">
-              <h3 className="flex items-center gap-2 text-sm font-bold"><Droplets size={16} /> Sumber air</h3>
-              <div className="mt-3 space-y-2" role="img" aria-label="Grafik jumlah sumur gali, sumur pompa, dan mata air.">
-                {waterSources.map((item) => <div key={item.label}>
-                  <div className="flex justify-between gap-2 text-xs"><span>{item.label}</span><strong>{formatNumber.format(item.count)}</strong></div>
-                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-[var(--line)]/70"><div className={`h-full rounded-full ${item.color}`} style={{ width: `${(item.count / facilities.sumurGali) * 100}%` }} /></div>
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)]"><HeartPulse size={19} /></span>
+                <div><h3 className="text-sm font-bold">Kesehatan</h3><p className="text-muted text-xs">Layanan dan tenaga kesehatan</p></div>
+              </div>
+              <div className="mt-4 space-y-2">
+                {[
+                  { label: "Puskesmas pembantu", count: facilities.puskesmasPembantu, icon: Hospital },
+                  { label: "Posyandu", count: facilities.posyandu, icon: Baby },
+                  { label: "Dokter umum", count: facilities.dokterUmum, icon: Stethoscope },
+                  { label: "Bidan", count: facilities.bidan, icon: Baby },
+                  { label: "Perawat", count: facilities.perawat, icon: HeartPulse },
+                ].map(({ label, count, icon: Icon }) => <div key={label} className="flex min-h-12 items-center gap-3 rounded-xl bg-[var(--primary-soft)]/55 px-3 py-2">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/70 text-[var(--primary)] dark:bg-white/10"><Icon size={16} aria-hidden="true" /></span>
+                  <span className="text-sm font-semibold">{label}</span><strong className="ml-auto text-base tabular-nums">{formatNumber.format(count)}</strong>
                 </div>)}
               </div>
             </div>
             <div className="rounded-2xl border border-[var(--line)] bg-white/55 p-4 dark:bg-white/[.03]">
-              <h3 className="flex items-center gap-2 text-sm font-bold"><Route size={16} /> Panjang jalan</h3>
-              <div className="mt-4 flex h-4 overflow-hidden rounded-full bg-[var(--line)]/70" role="img" aria-label={`Jalan aspal ${formatNumber.format(facilities.jalanAspalMeter)} meter; jalan beton atau semen ${formatNumber.format(facilities.jalanBetonMeter)} meter.`}>
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-sky-400/15 dark:text-sky-300"><Droplets size={19} /></span>
+                <div><h3 className="text-sm font-bold">Sumber air</h3><p className="text-muted text-xs">Jumlah sarana air bersih</p></div>
+              </div>
+              <div className="mt-4 space-y-3" role="img" aria-label="Grafik jumlah sumur gali, sumur pompa, dan mata air.">
+                {waterSources.map((item) => <div key={item.label}>
+                  <div className="flex justify-between gap-2 text-xs"><span>{item.label}</span><strong>{formatNumber.format(item.count)}</strong></div>
+                  <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-[var(--line)]/70"><div className={`h-full rounded-full ${item.color}`} style={{ width: `${(item.count / facilities.sumurGali) * 100}%` }} /></div>
+                </div>)}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[var(--line)] bg-white/55 p-4 dark:bg-white/[.03]">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300"><Route size={19} /></span>
+                <div><h3 className="text-sm font-bold">Jalan kelurahan</h3><p className="text-muted text-xs">Panjang jalan menurut permukaan</p></div>
+              </div>
+              <div className="mt-5 flex h-4 overflow-hidden rounded-full bg-[var(--line)]/70" role="img" aria-label={`Jalan aspal ${formatNumber.format(facilities.jalanAspalMeter)} meter; jalan beton atau semen ${formatNumber.format(facilities.jalanBetonMeter)} meter.`}>
                 <span className="h-full bg-amber-500" style={{ width: `${(facilities.jalanAspalMeter / roadTotal) * 100}%` }} />
                 <span className="h-full bg-emerald-600" style={{ width: `${(facilities.jalanBetonMeter / roadTotal) * 100}%` }} />
               </div>
-              <div className="text-muted mt-3 space-y-1 text-xs"><p className="flex items-center justify-between gap-2"><span><i className="mr-2 inline-block h-2.5 w-2.5 rounded-full bg-amber-500" />Aspal</span><strong>{formatNumber.format(facilities.jalanAspalMeter)} m</strong></p><p className="flex items-center justify-between gap-2"><span><i className="mr-2 inline-block h-2.5 w-2.5 rounded-full bg-emerald-600" />Beton/semen</span><strong>{formatNumber.format(facilities.jalanBetonMeter)} m</strong></p></div>
+              <div className="text-muted mt-4 space-y-2 text-xs"><p className="flex items-center justify-between gap-2"><span><i className="mr-2 inline-block h-2.5 w-2.5 rounded-full bg-amber-500" />Aspal</span><strong>{formatNumber.format(facilities.jalanAspalMeter)} m</strong></p><p className="flex items-center justify-between gap-2"><span><i className="mr-2 inline-block h-2.5 w-2.5 rounded-full bg-emerald-600" />Beton/semen</span><strong>{formatNumber.format(facilities.jalanBetonMeter)} m</strong></p></div>
+            </div>
+            <div className="rounded-2xl border border-[var(--line)] bg-white/55 p-4 dark:bg-white/[.03]">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300"><Store size={19} /></span>
+                <div><h3 className="text-sm font-bold">Usaha tercatat</h3><p className="text-muted text-xs">Usaha di lingkungan kelurahan</p></div>
+              </div>
+              <div className="mt-4 space-y-2">
+                {[
+                  { label: "Toko/kios", count: facilities.kios, icon: Store },
+                  { label: "Peternakan", count: facilities.usahaPeternakan, icon: Warehouse },
+                  { label: "Perikanan", count: facilities.usahaPerikanan, icon: Fish },
+                ].map(({ label, count, icon: Icon }) => <div key={label} className="flex min-h-12 items-center gap-3 rounded-xl bg-emerald-50/80 px-3 py-2 dark:bg-emerald-400/10">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/75 text-[var(--primary)] dark:bg-white/10"><Icon size={16} aria-hidden="true" /></span>
+                  <span className="text-sm font-semibold">{label}</span><strong className="ml-auto text-base tabular-nums">{formatNumber.format(count)}</strong>
+                </div>)}
+              </div>
             </div>
           </div>
           <p className="text-muted mt-4 text-[11px] italic leading-5">Sumber: bagian sarana dan prasarana dalam <em>Daftar Isian Potensi Desa dan Kelurahan Taratara Tiga</em>, Desember {PROFIL_2024.tahun}.</p>
